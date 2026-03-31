@@ -95,9 +95,27 @@
     main.innerHTML = '<div class="container" id="videos"></div>';
     const container = document.getElementById("videos");
 
-    for (let link of videoLinks) {
+    // Mezclar videos (Fisher-Yates shuffle)
+    const shuffled = [...videoLinks];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    for (let link of shuffled) {
       const id = getVideoId(link);
       const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+      const data = await res.json();
+
+      const thumbnail = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+
+      container.innerHTML += `
+        <div class="video-card" onclick="loadPlayer('${id}')">
+          <img class="thumbnail" src="${thumbnail}" />
+          <div class="video-info">
+            <div>${data.title}</div>
+            <div style="color:gray; font-size:12px;">${data.author_name}</div>
+          </div>&format=json`);
       const data = await res.json();
 
       const thumbnail = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
