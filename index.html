@@ -81,35 +81,23 @@ function shuffle(arr){
   }
 }
 
-async function resetAndRender(){
+function resetAndRender(){
   currentIndex = 0;
   main.innerHTML = '<div class="container" id="videos"></div>';
 
   let search = document.getElementById("search").value.toLowerCase();
-  // Si no hay búsqueda, NO filtrar (mostrar todos)
   const useFilter = search.length > 0;
 
-  filtered = [];
-
-  for(const link of videoLinks){
-    const id = getVideoId(link);
-    if(!id) continue;
-
-    try{
-      const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
-      const data = await res.json();
-
-      if(!useFilter || data.title.toLowerCase().includes(search) || data.author_name.toLowerCase().includes(search)){
-        filtered.push({id, data});
-      }
-    }catch{}
-  }
-
+  filtered = videoLinks.map(link => getVideoId(link)).filter(id => id);
   shuffle(filtered);
-  loadMore();
+
+  // aplicar filtro rápido después (no bloquea carga)
+  filtered = filtered.map(id => ({id, data:null}));
+
+  loadMore(useFilter, search);
 }
 
-function loadMore(){
+function loadMore(useFilter, search){
   const container = document.getElementById("videos");
   if(!container) return;
 
@@ -124,15 +112,32 @@ function loadMore(){
     card.className = "video-card";
     card.onclick = () => loadPlayer(vid.id);
 
+    // mostrar rápido primero
     card.innerHTML = `
       <img class="thumbnail" src="${thumbnail}">
       <div class="video-info">
-        <div>${vid.data.title}</div>
-        <div style="color:gray;font-size:12px;">${vid.data.author_name}</div>
+        <div>Cargando...</div>
+        <div style="color:gray;font-size:12px;">...</div>
       </div>
     `;
 
     container.appendChild(card);
+
+    // luego cargar info
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid.id}&format=json`)
+      .then(res => res.json())
+      .then(data => {
+        if(!useFilter || data.title.toLowerCase().includes(search) || data.author_name.toLowerCase().includes(search)){
+          card.querySelector(".video-info").innerHTML = `
+            <div>${data.title}</div>
+            <div style="color:gray;font-size:12px;">${data.author_name}</div>
+          `;
+        } else {
+          card.remove();
+        }
+      })
+      .catch(()=>card.remove());
+
     count++;
   }
 }
@@ -148,7 +153,9 @@ function loadPlayer(id){
 
 window.addEventListener("scroll", () => {
   if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 100){
-    loadMore();
+    let search = document.getElementById("search").value.toLowerCase();
+    const useFilter = search.length > 0;
+    loadMore(useFilter, search);
   }
 });
 
