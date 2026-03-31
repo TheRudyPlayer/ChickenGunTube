@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <title>ChickenGunTube</title>
 <style>
-body{margin:0;font-family:Arial;background:#0f0f0f;color:white;overflow-y:scroll}
+body{margin:0;font-family:Arial;background:#0f0f0f;color:white}
 header{background:#202020;padding:10px 20px;display:flex;gap:10px;position:sticky;top:0;z-index:10}
 header h1{color:#ff3c3c;margin:0}
 input{flex:1;padding:6px;border-radius:20px;border:none}
+button{cursor:pointer}
 .container{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;padding:20px}
 .video-card{background:#1f1f1f;border-radius:10px;overflow:hidden;cursor:pointer}
 .thumbnail{width:100%;height:180px;object-fit:cover}
@@ -16,8 +17,10 @@ input{flex:1;padding:6px;border-radius:20px;border:none}
 iframe{width:100%;height:500px;border:none;border-radius:10px}
 .channel{display:flex;align-items:center;gap:10px;margin-top:10px;cursor:pointer}
 .channel img{width:30px;height:30px;border-radius:50%}
+.tabs{display:flex;gap:10px;padding:10px}
+.tab{padding:6px 10px;background:#2a2a2a;border-radius:10px;cursor:pointer}
+.active{background:#ff3c3c}
 
-/* shorts */
 .shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
 .short{height:100vh;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex-direction:column}
 .short iframe{height:80%;width:300px}
@@ -93,7 +96,7 @@ const shortsLinks = [
 
 let filtered = [];
 let currentIndex = 0;
-const LOAD_PER_SCROLL = 4;
+const LOAD = 4;
 
 const main = document.getElementById("main");
 
@@ -104,6 +107,13 @@ function getVideoId(url){
   return null;
 }
 
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
 function resetAndRender(){
   currentIndex = 0;
   main.innerHTML = '<div class="container" id="videos"></div>';
@@ -112,6 +122,7 @@ function resetAndRender(){
   const useFilter = search.length > 0;
 
   filtered = videoLinks.map(link => getVideoId(link)).filter(id=>id);
+  shuffle(filtered);
 
   loadMore(useFilter, search);
 }
@@ -122,114 +133,149 @@ function loadMore(useFilter, search){
 
   let count = 0;
 
-  while(currentIndex < filtered.length && count < LOAD_PER_SCROLL){
+  while(currentIndex < filtered.length && count < LOAD){
     const id = filtered[currentIndex++];
-
-    const thumbnail = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
 
     const card = document.createElement("div");
     card.className = "video-card";
-    card.onclick = () => loadPlayer(id);
 
     card.innerHTML = `
-      <img class="thumbnail" src="${thumbnail}">
-      <div class="video-info">
-        <div>Cargando...</div>
-        <div style="color:gray;font-size:12px;">...</div>
-      </div>
+      <img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
+      <div class="video-info">Cargando...</div>
     `;
 
     container.appendChild(card);
 
     fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-    .then(res=>res.json())
+    .then(r=>r.json())
     .then(data=>{
       if(!useFilter || data.title.toLowerCase().includes(search) || data.author_name.toLowerCase().includes(search)){
+
+        card.onclick = () => loadPlayer(id, data.author_name);
+
         card.querySelector(".video-info").innerHTML = `
           <div>${data.title}</div>
           <div style="color:gray;font-size:12px;">${data.author_name}</div>
         `;
 
-        // canal clickeable
-        const channelDiv = document.createElement("div");
-        channelDiv.className = "channel";
-        channelDiv.innerHTML = `
+        const ch = document.createElement("div");
+        ch.className="channel";
+        ch.innerHTML=`
           <img src="https://ui-avatars.com/api/?name=${data.author_name}">
           <span>${data.author_name}</span>
         `;
-        channelDiv.onclick = (e)=>{
+
+        ch.onclick=(e)=>{
           e.stopPropagation();
           openChannel(data.author_name);
         };
-        card.appendChild(channelDiv);
 
-      } else {
-        card.remove();
-      }
-    }).catch(()=>card.remove());
+        card.appendChild(ch);
+
+      } else card.remove();
+    })
+    .catch(()=>card.remove());
 
     count++;
   }
 }
 
-function loadPlayer(id){
+function loadPlayer(id, channelName){
   window.scrollTo(0,0);
+
   main.innerHTML = `
     <div class="player">
       <button onclick="resetAndRender()">⬅ Volver</button>
       <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
+      <div class="channel" onclick="openChannel('${channelName}')">
+        <img src="https://ui-avatars.com/api/?name=${channelName}">
+        <span>${channelName}</span>
+      </div>
     </div>
   `;
 }
 
 function openChannel(name){
-  main.innerHTML = '<div class="container" id="videos"></div>';
+  main.innerHTML = `
+    <div style="padding:20px">
+      <button onclick="resetAndRender()">⬅ Volver</button>
+      <h2>${name}</h2>
+      <div class="tabs">
+        <div class="tab active" onclick="renderChannel('${name}','videos',this)">Videos</div>
+        <div class="tab" onclick="renderChannel('${name}','shorts',this)">Shorts</div>
+      </div>
+      <div class="container" id="videos"></div>
+    </div>
+  `;
+
+  renderChannel(name,'videos');
+}
+
+function renderChannel(name,type,el){
   const container = document.getElementById("videos");
+  container.innerHTML = '';
 
-  videoLinks.forEach(link=>{
-    const id = getVideoId(link);
-    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-    .then(res=>res.json())
-    .then(data=>{
-      if(data.author_name===name){
-        const card = document.createElement("div");
-        card.className="video-card";
-        card.onclick=()=>loadPlayer(id);
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
 
-        card.innerHTML=`
-        <img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
-        <div class="video-info">${data.title}</div>`;
-
-        container.appendChild(card);
-      }
+  if(type==='videos'){
+    videoLinks.forEach(link=>{
+      const id=getVideoId(link);
+      fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+      .then(r=>r.json())
+      .then(data=>{
+        if(data.author_name===name){
+          const card=document.createElement('div');
+          card.className='video-card';
+          card.onclick=()=>loadPlayer(id,name);
+          card.innerHTML=`<img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg"><div class="video-info">${data.title}</div>`;
+          container.appendChild(card);
+        }
+      });
     });
-  });
+  } else {
+    shortsLinks.forEach(link=>{
+      const id=getVideoId(link);
+      fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+      .then(r=>r.json())
+      .then(data=>{
+        if(data.author_name===name){
+          const card=document.createElement('div');
+          card.className='video-card';
+          card.onclick=()=>openShorts();
+          card.innerHTML=`<img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg"><div class="video-info">Short</div>`;
+          container.appendChild(card);
+        }
+      });
+    });
+  }
 }
 
 function openShorts(){
   main.innerHTML = '<div class="shorts-container" id="shorts"></div>';
   const container = document.getElementById("shorts");
 
-  shortsLinks.forEach(link=>{
-    const id = getVideoId(link);
+  let arr = shortsLinks.map(l=>getVideoId(l));
+  shuffle(arr);
 
-    const short = document.createElement("div");
-    short.className="short";
+  arr.forEach(id=>{
+    const div=document.createElement("div");
+    div.className="short";
 
-    short.innerHTML=`
-      <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
+    div.innerHTML=`
+      <iframe src="https://www.youtube.com/embed/${id}"></iframe>
       <div class="like-btn" onclick="this.innerText = this.innerText==='❤️ 1' ? '🤍 0' : '❤️ 1'">🤍 0</div>
     `;
 
-    container.appendChild(short);
+    container.appendChild(div);
   });
 }
 
-window.addEventListener("scroll", () => {
-  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 100){
-    let search = document.getElementById("search").value.toLowerCase();
-    const useFilter = search.length > 0;
-    loadMore(useFilter, search);
+window.addEventListener("scroll",()=>{
+  if(window.innerHeight+window.scrollY>=document.body.offsetHeight-100){
+    let search=document.getElementById("search").value.toLowerCase();
+    const useFilter=search.length>0;
+    loadMore(useFilter,search);
   }
 });
 
