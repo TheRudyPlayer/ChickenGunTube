@@ -5,7 +5,7 @@
   <title>ChickenGunTube</title>
   <style>
     body { margin:0; font-family:Arial; background:#0f0f0f; color:white; }
-    header { background:#202020; padding:10px 20px; display:flex; gap:10px; align-items:center; }
+    header { background:#202020; padding:10px 20px; display:flex; gap:10px; align-items:center; position:sticky; top:0; }
     header h1 { color:#ff3c3c; margin:0; }
     input { flex:1; padding:6px; border-radius:20px; border:none; outline:none; }
 
@@ -21,7 +21,7 @@
 
 <header>
   <h1>🐔 ChickenGunTube</h1>
-  <input type="text" id="search" placeholder="Buscar videos..." oninput="loadHome()">
+  <input type="text" id="search" placeholder="Buscar videos..." oninput="resetAndLoad()">
 </header>
 
 <div id="main"></div>
@@ -63,6 +63,9 @@ const videoLinks = [
 "https://youtu.be/Vw1W_5exiRw"
 ];
 
+let loadedCount = 0;
+const LOAD_PER_SCROLL = 6;
+
 const main = document.getElementById("main");
 
 function getVideoId(url){
@@ -75,23 +78,31 @@ function getVideoId(url){
   return null;
 }
 
-async function loadHome(){
-  let search = document.getElementById("search").value.toLowerCase();
+let shuffled = [];
 
-  if(!search){
-    search = "chicken gun";
-  }
-
+function resetAndLoad(){
+  loadedCount = 0;
+  shuffleVideos();
   main.innerHTML = '<div class="container" id="videos"></div>';
-  const container = document.getElementById("videos");
+  loadMore();
+}
 
-  const shuffled = [...videoLinks];
+function shuffleVideos(){
+  shuffled = [...videoLinks];
   for(let i = shuffled.length - 1; i > 0; i--){
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
+}
 
-  for(const link of shuffled){
+async function loadMore(){
+  const container = document.getElementById("videos");
+  const search = document.getElementById("search").value.toLowerCase() || "chicken gun";
+
+  let count = 0;
+
+  while(loadedCount < shuffled.length && count < LOAD_PER_SCROLL){
+    const link = shuffled[loadedCount++];
     const id = getVideoId(link);
     if(!id) continue;
 
@@ -99,7 +110,7 @@ async function loadHome(){
       const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
       const data = await res.json();
 
-      if(search && !data.title.toLowerCase().includes(search) && !data.author_name.toLowerCase().includes(search)){
+      if(!data.title.toLowerCase().includes(search) && !data.author_name.toLowerCase().includes(search)){
         continue;
       }
 
@@ -118,9 +129,10 @@ async function loadHome(){
       `;
 
       container.appendChild(card);
+      count++;
 
     }catch(e){
-      console.log("error video", id);
+      console.log("error", id);
     }
   }
 }
@@ -128,13 +140,23 @@ async function loadHome(){
 function loadPlayer(id){
   main.innerHTML = `
     <div class="player">
-      <button onclick="loadHome()">⬅ Volver</button>
+      <button onclick="resetAndLoad()">⬅ Volver</button>
       <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
     </div>
   `;
 }
 
-loadHome();
+// scroll infinito
+window.addEventListener("scroll", () => {
+  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
+    loadMore();
+  }
+});
+
+// inicio
+shuffleVideos();
+main.innerHTML = '<div class="container" id="videos"></div>';
+loadMore();
 </script>
 
 </body>
