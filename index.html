@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>ChickenGunTube</title>
 <style>
-body{margin:0;font-family:Arial;background:#0f0f0f;color:white}
-header{background:#202020;padding:10px 20px;display:flex;gap:10px;position:sticky;top:0}
+body{margin:0;font-family:Arial;background:#0f0f0f;color:white;overflow-y:scroll}
+header{background:#202020;padding:10px 20px;display:flex;gap:10px;position:sticky;top:0;z-index:10}
 header h1{color:#ff3c3c;margin:0}
 input{flex:1;padding:6px;border-radius:20px;border:none}
 .container{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;padding:20px}
@@ -14,6 +14,14 @@ input{flex:1;padding:6px;border-radius:20px;border:none}
 .video-info{padding:10px}
 .player{padding:20px}
 iframe{width:100%;height:500px;border:none;border-radius:10px}
+.channel{display:flex;align-items:center;gap:10px;margin-top:10px;cursor:pointer}
+.channel img{width:30px;height:30px;border-radius:50%}
+
+/* shorts */
+.shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
+.short{height:100vh;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex-direction:column}
+.short iframe{height:80%;width:300px}
+.like-btn{margin-top:10px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -21,12 +29,18 @@ iframe{width:100%;height:500px;border:none;border-radius:10px}
 <header>
 <h1>🐔 ChickenGunTube</h1>
 <input type="text" id="search" placeholder="Buscar..." oninput="resetAndRender()">
+<button onclick="openShorts()">Shorts</button>
 </header>
 
 <div id="main"></div>
 
 <script>
 const videoLinks = [
+"https://youtu.be/qccLjtbBbkM",
+"https://youtu.be/_hdKjo5NR40"
+];
+
+const shortsLinks = [
 "https://youtu.be/qccLjtbBbkM",
 "https://youtu.be/_hdKjo5NR40",
 "https://youtu.be/m3M-RwZebEk",
@@ -76,21 +90,15 @@ const videoLinks = [
 
 let filtered = [];
 let currentIndex = 0;
-const LOAD_PER_SCROLL = 6;
+const LOAD_PER_SCROLL = 4;
 
 const main = document.getElementById("main");
 
 function getVideoId(url){
+  if(url.includes("shorts/")) return url.split("shorts/")[1].split("?")[0];
   if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
   if(url.includes("watch?v=")) return url.split("v=")[1].split("&")[0];
   return null;
-}
-
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
 }
 
 function resetAndRender(){
@@ -100,11 +108,7 @@ function resetAndRender(){
   let search = document.getElementById("search").value.toLowerCase();
   const useFilter = search.length > 0;
 
-  filtered = videoLinks.map(link => getVideoId(link)).filter(id => id);
-  shuffle(filtered);
-
-  // aplicar filtro rápido después (no bloquea carga)
-  filtered = filtered.map(id => ({id, data:null}));
+  filtered = videoLinks.map(link => getVideoId(link)).filter(id=>id);
 
   loadMore(useFilter, search);
 }
@@ -116,15 +120,14 @@ function loadMore(useFilter, search){
   let count = 0;
 
   while(currentIndex < filtered.length && count < LOAD_PER_SCROLL){
-    const vid = filtered[currentIndex++];
+    const id = filtered[currentIndex++];
 
-    const thumbnail = `https://img.youtube.com/vi/${vid.id}/hqdefault.jpg`;
+    const thumbnail = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
 
     const card = document.createElement("div");
     card.className = "video-card";
-    card.onclick = () => loadPlayer(vid.id);
+    card.onclick = () => loadPlayer(id);
 
-    // mostrar rápido primero
     card.innerHTML = `
       <img class="thumbnail" src="${thumbnail}">
       <div class="video-info">
@@ -135,32 +138,88 @@ function loadMore(useFilter, search){
 
     container.appendChild(card);
 
-    // luego cargar info
-    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid.id}&format=json`)
-      .then(res => res.json())
-      .then(data => {
-        if(!useFilter || data.title.toLowerCase().includes(search) || data.author_name.toLowerCase().includes(search)){
-          card.querySelector(".video-info").innerHTML = `
-            <div>${data.title}</div>
-            <div style="color:gray;font-size:12px;">${data.author_name}</div>
-          `;
-        } else {
-          card.remove();
-        }
-      })
-      .catch(()=>card.remove());
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+    .then(res=>res.json())
+    .then(data=>{
+      if(!useFilter || data.title.toLowerCase().includes(search) || data.author_name.toLowerCase().includes(search)){
+        card.querySelector(".video-info").innerHTML = `
+          <div>${data.title}</div>
+          <div style="color:gray;font-size:12px;">${data.author_name}</div>
+        `;
+
+        // canal clickeable
+        const channelDiv = document.createElement("div");
+        channelDiv.className = "channel";
+        channelDiv.innerHTML = `
+          <img src="https://ui-avatars.com/api/?name=${data.author_name}">
+          <span>${data.author_name}</span>
+        `;
+        channelDiv.onclick = (e)=>{
+          e.stopPropagation();
+          openChannel(data.author_name);
+        };
+        card.appendChild(channelDiv);
+
+      } else {
+        card.remove();
+      }
+    }).catch(()=>card.remove());
 
     count++;
   }
 }
 
 function loadPlayer(id){
+  window.scrollTo(0,0);
   main.innerHTML = `
     <div class="player">
       <button onclick="resetAndRender()">⬅ Volver</button>
       <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
     </div>
   `;
+}
+
+function openChannel(name){
+  main.innerHTML = '<div class="container" id="videos"></div>';
+  const container = document.getElementById("videos");
+
+  videoLinks.forEach(link=>{
+    const id = getVideoId(link);
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.author_name===name){
+        const card = document.createElement("div");
+        card.className="video-card";
+        card.onclick=()=>loadPlayer(id);
+
+        card.innerHTML=`
+        <img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
+        <div class="video-info">${data.title}</div>`;
+
+        container.appendChild(card);
+      }
+    });
+  });
+}
+
+function openShorts(){
+  main.innerHTML = '<div class="shorts-container" id="shorts"></div>';
+  const container = document.getElementById("shorts");
+
+  shortsLinks.forEach(link=>{
+    const id = getVideoId(link);
+
+    const short = document.createElement("div");
+    short.className="short";
+
+    short.innerHTML=`
+      <iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>
+      <div class="like-btn" onclick="this.innerText = this.innerText==='❤️ 1' ? '🤍 0' : '❤️ 1'">🤍 0</div>
+    `;
+
+    container.appendChild(short);
+  });
 }
 
 window.addEventListener("scroll", () => {
