@@ -119,23 +119,54 @@ function render(){
 function openVideo(id){
  let v=videosData.find(v=>v.id===id);
  let comm=comments[id]||[];
+
  main.innerHTML=`
  <button onclick="render()">${texts[lang].back}</button>
  <iframe src="https://www.youtube.com/embed/${id}"></iframe>
  <h3>${v.author_name}</h3>
+
  <div>
   <input id="commentInput" placeholder="comment...">
   <button onclick="addComment('${id}')">Enviar</button>
-  <div id="comments">${comm.map(c=>`<p>${c}</p>`).join("")}</div>
- </div>`;
+ </div>
+
+ <div id="comments">
+  ${comm.map((c,i)=>{
+    const isOwner = user && c.startsWith(user+":");
+    return `
+    <div style="margin-top:10px;background:#1f1f1f;padding:8px;border-radius:8px;">
+      <span>${c}</span>
+      ${isOwner ? `<button onclick="deleteComment('${id}',${i})" style="margin-left:10px;">🗑</button>` : ""}
+    </div>`;
+  }).join("")}
+ </div>
+ `;
 }
 
 function addComment(id){
  if(!user)return alert("Crea cuenta primero");
+
  let input=document.getElementById("commentInput");
+ if(!input.value.trim()) return;
+
  if(!comments[id])comments[id]=[];
  comments[id].push(user+": "+input.value);
+
  localStorage.setItem("comments",JSON.stringify(comments));
+ openVideo(id);
+}
+
+function deleteComment(id,index){
+ if(!comments[id]) return;
+
+ const comment = comments[id][index];
+ if(!comment.startsWith(user+":")){
+   return alert("No puedes borrar este comentario");
+ }
+
+ comments[id].splice(index,1);
+ localStorage.setItem("comments",JSON.stringify(comments));
+
  openVideo(id);
 }
 
