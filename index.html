@@ -63,13 +63,42 @@ function getVideoId(url){
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 async function loadLinks(){
- const res=await fetch('LinkVideo.html');
- const txt=await res.text();
- const doc=new DOMParser().parseFromString(txt,'text/html');
- videoLinks=[...doc.querySelectorAll('.video-link')].map(e=>e.innerText.trim());
- shortsLinks=[...doc.querySelectorAll('.short-link')].map(e=>e.innerText.trim());
-}
+  const res = await fetch("LinkVideo.html");
+  const text = await res.text();
 
+  videoLinks = [];
+  shortsLinks = [];
+
+  let mode = "";
+
+  // 🔥 limpiar texto completo
+  const clean = text.replace(/\r/g, "");
+  const lines = clean.split("\n");
+
+  lines.forEach(line => {
+    line = line.trim();
+
+    if(line.includes("#VIDEOS")){
+      mode = "video";
+      return;
+    }
+    if(line.includes("#SHORTS")){
+      mode = "short";
+      return;
+    }
+
+    // 🔥 sacar TODOS los links entre comillas aunque estén con coma
+    const matches = line.match(/"(https?:\/\/[^\"]+)"/g);
+
+    if(matches){
+      matches.forEach(m=>{
+        const link = m.replace(/"/g, "").replace(/,$/, "");
+
+        if(mode === "video") videoLinks.push(link);
+        if(mode === "short") shortsLinks.push(link);
+      });
+    }
+  });
 async function loadVideos(){
  videosData=[];
  for(const l of videoLinks){
