@@ -16,269 +16,159 @@ button{cursor:pointer}
 .video-info{padding:10px}
 .player{padding:10px}
 iframe{width:100%;height:500px;border:none;border-radius:10px}
-.channel{display:flex;align-items:center;gap:10px;margin-top:10px;cursor:pointer}
-.channel img{width:30px;height:30px;border-radius:50%}
-.channel-box{padding:10px;background:#1f1f1f;margin:10px;border-radius:10px;cursor:pointer}
+.channel{margin-top:10px;cursor:pointer}
 
-.shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
-.short{height:100vh;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex-direction:column}
-.short iframe{height:90%;width:320px}
-.like-btn{margin-top:10px;cursor:pointer}
-
-.settings{position:fixed;top:60px;right:10px;background:#1f1f1f;padding:10px;border-radius:10px;display:none}
+.page{padding:20px}
+.tab-btn{padding:8px 12px;background:#2a2a2a;border-radius:10px;margin-right:5px;cursor:pointer}
+.active{background:#ff3c3c}
 </style>
 </head>
 <body>
 
 <header>
-<h1 id="title">🐔 ChickenGunTube</h1>
-<input type="text" id="search" placeholder="Buscar..." oninput="resetAndRender()">
-<button onclick="openShorts()" id="shortsBtn">Shorts</button>
-<button onclick="toggleSettings()">⚙️</button>
+<h1>🐔 ChickenGunTube</h1>
+<input type="text" id="search" placeholder="Buscar..." oninput="render()">
+<button onclick="openShorts()">Shorts</button>
+<button onclick="openSettings()">⚙️</button>
 </header>
-
-<div class="settings" id="settings">
-<select onchange="setLang(this.value)">
-<option value="es">Español</option>
-<option value="en">English</option>
-<option value="pt">Português (Brasil)</option>
-<option value="ru">Русский</option>
-<option value="ua">Українська</option>
-</select>
-</div>
 
 <div id="main"></div>
 
 <script>
-const langs = {
-  es:{search:"Buscar...",shorts:"Shorts",loading:"Cargando...",back:"⬅ Volver"},
-  en:{search:"Search...",shorts:"Shorts",loading:"Loading...",back:"⬅ Back"},
-  pt:{search:"Pesquisar...",shorts:"Shorts",loading:"Carregando...",back:"⬅ Voltar"},
-  ru:{search:"Поиск...",shorts:"Шортс",loading:"Загрузка...",back:"⬅ Назад"},
-  ua:{search:"Пошук...",shorts:"Шортс",loading:"Завантаження...",back:"⬅ Назад"}
+let videoLinks=[], shortsLinks=[], videosData=[], randomizedOrder=[];
+let lang = localStorage.getItem('lang') || 'es';
+
+const texts={
+ es:{search:'Buscar...',back:'⬅ Volver',creator:'Creador',lang:'Idiomas'},
+ en:{search:'Search...',back:'⬅ Back',creator:'Creator',lang:'Languages'},
+ pt:{search:'Pesquisar...',back:'⬅ Voltar',creator:'Criador',lang:'Idiomas'},
+ ru:{search:'Поиск...',back:'⬅ Назад',creator:'Создатель',lang:'Языки'},
+ ua:{search:'Пошук...',back:'⬅ Назад',creator:'Творець',lang:'Мови'}
 };
 
-let currentLang = localStorage.getItem("lang") || "es";
-
 function applyLang(){
-  document.getElementById("search").placeholder = langs[currentLang].search;
-  document.getElementById("shortsBtn").innerText = langs[currentLang].shorts;
+ document.getElementById('search').placeholder=texts[lang].search;
 }
 
 function setLang(l){
-  currentLang = l;
-  localStorage.setItem("lang",l);
-  applyLang();
+ lang=l; localStorage.setItem('lang',l); applyLang(); render();
 }
-
-function toggleSettings(){
-  const s=document.getElementById("settings");
-  s.style.display = s.style.display==='block'?'none':'block';
-}
-
-const videoLinks=["https://youtu.be/_hdKjo5NR40",
-"https://youtu.be/m3M-RwZebEk",
-"https://youtu.be/fZbO_Tw-o3Q",
-"https://youtu.be/tP-BqF_jtLA",
-"https://youtu.be/_Qu03z4z9gY",
-"https://youtu.be/K5-OkvRmPR0",
-"https://youtu.be/UqZff8U7ccg",
-"https://youtu.be/cGpKTx35maM",
-"https://youtu.be/jUUGSuCHJbg",
-"https://youtu.be/NY8sJ0eSC-w",
-"https://youtu.be/zl1oLKIbEvE",
-"https://youtu.be/ZGFoxQB8L3E",
-"https://youtu.be/FCJ9hZnFrTo",
-"https://youtu.be/PFSxjgC2iTk",
-"https://youtu.be/s51MPbBYhLU",
-"https://youtu.be/ruYuZn4Pw64",
-"https://youtu.be/oRSi2adINes",
-"https://youtu.be/vfejXap4dpM",
-"https://youtu.be/i7shcD7dqx4",
-"https://youtu.be/J8EizXyANpU",
-"https://youtu.be/QesM1RNvqRU",
-"https://youtu.be/f-6J8iFeGtE",
-"https://youtu.be/d3fuW_TdQXQ",
-"https://youtu.be/s_geZlI4vOU",
-"https://youtu.be/iL3o0YUfVZU",
-"https://youtu.be/SB6t85igDaE",
-"https://youtu.be/pAdICtH0rdI",
-"https://youtu.be/_uwxQJ6KH2Y",
-"https://youtu.be/K4v_N0VPJFA",
-"https://youtu.be/bqenfzRAz1k",
-"https://youtu.be/_2i7JU9iGOM",
-"https://youtu.be/Vw1W_5exiRw",
-"https://youtu.be/2kS7SP3uBSk",
-"https://youtu.be/5Q59YDeV5sM",
-"https://youtu.be/AQV3cMZfhJo",
-"https://youtu.be/R6_kjcBeFpg",
-"https://youtu.be/kpuORHAk39w",
-"https://youtu.be/qaY5BHR9gmE",
-"https://youtu.be/3Y1JQKWhbp0",
-"https://youtu.be/S2ftuageELc",
-"https://youtu.be/fp4EbUAm600",
-"https://youtu.be/EjaVs-mQZs4",
-"https://youtu.be/ToZOhway8p8",
-"https://youtu.be/ia5oVfglWk4",
-"https://youtu.be/FFj9nj8Jo5Q",
-"https://youtu.be/QRanoZgVGXE",
-"https://youtu.be/vMsVTK04rig",
-"https://youtu.be/SOzU2WjVBT0",
-"https://youtu.be/PmpRDiCbvH8",
-"https://youtu.be/HOndOaM4x1I",
-"https://youtu.be/mZ4jG7wvDmE",
-"https://youtu.be/w4Kdn-Lr8pk",
-"https://youtu.be/qjQVertQLCo",
-"https://youtu.be/c34odL_Rn80",
-"https://youtu.be/XZrawdRI_kc",
-"https://youtu.be/Qi3riINB2SI",
-"https://youtu.be/-8XfPTKQORo",
-"https://youtu.be/fwFi5cXp-mc",
-"https://youtu.be/fOz_TY9vaJA",
-"https://youtu.be/UZIYZZZmDF0",
-"https://youtu.be/tcLvmRYfRBI",
-"https://youtu.be/P7XFYl7s-RM",
-"https://youtu.be/TlYL0nddHJg",
-"https://youtu.be/E39QlO7pk1c",
-"https://youtu.be/hXoBti37mZU",
-"https://youtu.be/IUz8mSOv0Ls",
-"https://youtu.be/8GQcLT_dJyE",
-"https://youtu.be/fnrWYd0FRJA",
-"https://youtu.be/txySDw0Av4Q",
-"https://youtu.be/mka50bRYP2o",
-"https://youtu.be/ET6K1edREkI",
-"https://youtu.be/bMw4qvsLBqM"
-"https://youtu.be/ksQP2IfWR0A"
-"https://youtu.be/4VhKKZWiTfE"
-"https://youtu.be/-Z5hKjFxwzQ"
-"https://youtu.be/AbDKKXBRO2w"];
-const shortsLinks=["https://youtube.com/shorts/ZarEZbchMm4",
-"https://youtube.com/shorts/QWijasdYtb0",
-"https://youtube.com/shorts/6s6gSnT-kXQ",
-"https://youtube.com/shorts/cszaisrd6dk",
-"https://youtube.com/shorts/Huz0-BijlaM",
-"https://youtube.com/shorts/Lx5B0Oo2NPs"];
-
-let videosData=[];
-const main=document.getElementById("main");
 
 function getVideoId(url){
-  if(url.includes("shorts/")) return url.split("shorts/")[1].split("?")[0];
-  if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
-  if(url.includes("watch?v=")) return url.split("v=")[1].split("&")[0];
+ if(url.includes('shorts/')) return url.split('shorts/')[1].split('?')[0];
+ if(url.includes('youtu.be/')) return url.split('youtu.be/')[1].split('?')[0];
+ if(url.includes('watch?v=')) return url.split('v=')[1].split('&')[0];
 }
 
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+async function loadLinks(){
+ const res=await fetch('LinkVideo.html');
+ const txt=await res.text();
+ const doc=new DOMParser().parseFromString(txt,'text/html');
+ videoLinks=[...doc.querySelectorAll('.video-link')].map(e=>e.innerText.trim());
+ shortsLinks=[...doc.querySelectorAll('.short-link')].map(e=>e.innerText.trim());
 }
 
-function loadAllVideos(){
-  videosData=[];
-  videoLinks.forEach(link=>{
-    const id=getVideoId(link);
-    videosData.push({id,title:langs[currentLang].loading,author_name:"..."});
-
-    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-    .then(r=>r.json())
-    .then(data=>{
-      const i=videosData.findIndex(v=>v.id===id);
-      if(i!==-1){videosData[i]={id,...data};resetAndRender();}
-    });
-  });
+async function loadVideos(){
+ videosData=[];
+ for(const l of videoLinks){
+  const id=getVideoId(l);
+  videosData.push({id,title:'...',author_name:'...'});
+  fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+  .then(r=>r.json()).then(d=>{
+   const i=videosData.findIndex(v=>v.id===id);
+   if(i!==-1){videosData[i]={id,...d}; updateCard(id);} });
+ }
+ randomizedOrder=shuffle(videosData.map(v=>v.id));
 }
 
-function resetAndRender(){
-  const search=document.getElementById("search").value.toLowerCase();
-  main.innerHTML='<div id="content"></div>';
-  const content=document.getElementById("content");
+function updateCard(id){
+ const el=document.getElementById('c_'+id);
+ const v=videosData.find(v=>v.id===id);
+ if(el && v){
+  el.querySelector('.video-info').innerHTML=`<div>${v.title}</div><div style='color:gray;font-size:12px;'>${v.author_name}</div>`;
+ }
+}
 
-  // RANDOM REAL
-  let shuffled=[...videosData];
-  shuffle(shuffled);
-
-  let results=shuffled.filter(v=>
-    v.title.toLowerCase().includes(search)||
-    v.author_name.toLowerCase().includes(search)
-  );
-
-  const channelMatch=videosData.find(v=>v.author_name.toLowerCase().includes(search));
-
-  if(search && channelMatch){
-    const ch=document.createElement("div");
-    ch.className="channel-box";
-    ch.innerHTML=`👤 ${channelMatch.author_name}`;
-    ch.onclick=()=>openChannel(channelMatch.author_name);
-    content.appendChild(ch);
-  }
-
-  const container=document.createElement("div");
-  container.className="container";
-
-  results.forEach(v=>{
-    const card=document.createElement("div");
-    card.className="video-card";
-    card.onclick=()=>loadPlayer(v.id,v.author_name);
-    card.innerHTML=`
-      <img class="thumbnail" src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg">
-      <div class="video-info">
-        <div>${v.title}</div>
-        <div style="color:gray;font-size:12px;">${v.author_name}</div>
-      </div>`;
-    container.appendChild(card);
-  });
-
-  content.appendChild(container);
+function render(){
+ const s=document.getElementById('search').value.toLowerCase();
+ main.innerHTML='<div class="container" id="videos"></div>';
+ const c=document.getElementById('videos');
+ randomizedOrder.forEach(id=>{
+  const v=videosData.find(v=>v.id===id);
+  if(!v) return;
+  if(s && !(v.title.toLowerCase().includes(s)||v.author_name.toLowerCase().includes(s))) return;
+  const card=document.createElement('div');
+  card.className='video-card'; card.id='c_'+id;
+  card.onclick=()=>loadPlayer(id,v.author_name);
+  card.innerHTML=`<img class='thumbnail' src='https://img.youtube.com/vi/${id}/hqdefault.jpg'><div class='video-info'><div>${v.title}</div><div style='color:gray;font-size:12px;'>${v.author_name}</div></div>`;
+  c.appendChild(card);
+ });
 }
 
 function loadPlayer(id,name){
-  main.innerHTML=`
-  <div class="player">
-    <button onclick="resetAndRender()">${langs[currentLang].back}</button>
-    <iframe src="https://www.youtube.com/embed/${id}"></iframe>
-    <div class="channel" onclick="openChannel('${name}')">
-      <img src="https://ui-avatars.com/api/?name=${name}">
-      <span>${name}</span>
-    </div>
-  </div>`;
+ main.innerHTML=`<div class='player'><button onclick='render()'>${texts[lang].back}</button><iframe src='https://www.youtube.com/embed/${id}'></iframe><div class='channel' onclick="openChannel('${name}')">${name}</div></div>`;
 }
 
 function openChannel(name){
-  main.innerHTML='<div class="container" id="videos"></div>';
-  const c=document.getElementById("videos");
-  videosData.forEach(v=>{
-    if(v.author_name===name){
-      const card=document.createElement("div");
-      card.className="video-card";
-      card.onclick=()=>loadPlayer(v.id,name);
-      card.innerHTML=`<img class="thumbnail" src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg"><div class="video-info">${v.title}</div>`;
-      c.appendChild(card);
-    }
-  });
+ main.innerHTML='<div class="container" id="videos"></div>';
+ const c=document.getElementById('videos');
+ videosData.forEach(v=>{
+  if(v.author_name===name){
+   const card=document.createElement('div');
+   card.className='video-card';
+   card.onclick=()=>loadPlayer(v.id,name);
+   card.innerHTML=`<img class='thumbnail' src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'><div class='video-info'>${v.title}</div>`;
+   c.appendChild(card);
+  }
+ });
 }
 
 function openShorts(){
-  main.innerHTML='<div class="shorts-container" id="shorts"></div>';
-  const c=document.getElementById("shorts");
-
-  let arr=shortsLinks.map(l=>getVideoId(l));
-  shuffle(arr);
-
-  arr.forEach(id=>{
-    const div=document.createElement("div");
-    div.className="short";
-    div.innerHTML=`
-      <iframe src="https://www.youtube.com/embed/${id}"></iframe>
-      <div class="like-btn" onclick="this.innerText=this.innerText==='❤️ 1'?'🤍 0':'❤️ 1'">🤍 0</div>`;
-    c.appendChild(div);
-  });
+ main.innerHTML='<div id="shorts"></div>';
+ const c=document.getElementById('shorts');
+ shuffle(shortsLinks.map(getVideoId)).forEach(id=>{
+  const d=document.createElement('div');
+  d.innerHTML=`<iframe src='https://www.youtube.com/embed/${id}'></iframe>`;
+  c.appendChild(d);
+ });
 }
 
-applyLang();
-loadAllVideos();
-resetAndRender();
+function openSettings(){
+ main.innerHTML=`
+ <div class='page'>
+  <div>
+   <span class='tab-btn active'>${texts[lang].creator}</span>
+   <span class='tab-btn' onclick='showLangs()'>${texts[lang].lang}</span>
+  </div>
+  <div id='content'>
+   <h3>${texts[lang].creator}</h3>
+   <a href='https://youtube.com' target='_blank'><button>Subscribe</button></a>
+   <p>© ChickenGunTube</p>
+  </div>
+ </div>`;
+}
+
+function showLangs(){
+ const list={es:['en','ru','pt','ua'],en:['en','ru','pt','ua'],pt:['en','ru','pt','ua'],ru:['en','ru','pt','ua'],ua:['en','ru','pt','ua']};
+ const c=document.getElementById('content');
+ c.innerHTML='';
+ list[lang].forEach(l=>{
+  const b=document.createElement('div');
+  b.className='tab-btn';
+  b.innerText=l;
+  b.onclick=()=>setLang(l);
+  c.appendChild(b);
+ });
+}
+
+(async()=>{
+ applyLang();
+ await loadLinks();
+ await loadVideos();
+ render();
+})();
 </script>
 
 </body>
