@@ -22,7 +22,7 @@ iframe{width:100%;height:500px;border:none;border-radius:10px}
 
 .shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
 .short{height:100vh;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;flex-direction:column}
-.short iframe{height:70%;width:300px}
+.short iframe{height:90%;width:320px}
 .like-btn{margin-top:10px;cursor:pointer}
 
 .settings{position:fixed;top:60px;right:10px;background:#1f1f1f;padding:10px;border-radius:10px;display:none}
@@ -51,11 +51,11 @@ iframe{width:100%;height:500px;border:none;border-radius:10px}
 
 <script>
 const langs = {
-  es:{search:"Buscar...",shorts:"Shorts",loading:"Cargando..."},
-  en:{search:"Search...",shorts:"Shorts",loading:"Loading..."},
-  pt:{search:"Pesquisar...",shorts:"Shorts",loading:"Carregando..."},
-  ru:{search:"Поиск...",shorts:"Шортс",loading:"Загрузка..."},
-  ua:{search:"Пошук...",shorts:"Шортс",loading:"Завантаження..."}
+  es:{search:"Buscar...",shorts:"Shorts",loading:"Cargando...",back:"⬅ Volver"},
+  en:{search:"Search...",shorts:"Shorts",loading:"Loading...",back:"⬅ Back"},
+  pt:{search:"Pesquisar...",shorts:"Shorts",loading:"Carregando...",back:"⬅ Voltar"},
+  ru:{search:"Поиск...",shorts:"Шортс",loading:"Загрузка...",back:"⬅ Назад"},
+  ua:{search:"Пошук...",shorts:"Шортс",loading:"Завантаження...",back:"⬅ Назад"}
 };
 
 let currentLang = localStorage.getItem("lang") || "es";
@@ -76,8 +76,7 @@ function toggleSettings(){
   s.style.display = s.style.display==='block'?'none':'block';
 }
 
-const videoLinks=["https://youtu.be/qccLjtbBbkM",
-"https://youtu.be/_hdKjo5NR40",
+const videoLinks=["https://youtu.be/_hdKjo5NR40",
 "https://youtu.be/m3M-RwZebEk",
 "https://youtu.be/fZbO_Tw-o3Q",
 "https://youtu.be/tP-BqF_jtLA",
@@ -142,8 +141,7 @@ const videoLinks=["https://youtu.be/qccLjtbBbkM",
 "https://youtu.be/TlYL0nddHJg",
 "https://youtu.be/E39QlO7pk1c",
 "https://youtu.be/hXoBti37mZU"];
-const shortsLinks=["https://youtube.com/shorts/7bJ5ByJwRW8",
-"https://youtube.com/shorts/ZarEZbchMm4",
+const shortsLinks=["https://youtube.com/shorts/ZarEZbchMm4",
 "https://youtube.com/shorts/QWijasdYtb0",
 "https://youtube.com/shorts/6s6gSnT-kXQ",
 "https://youtube.com/shorts/cszaisrd6dk",
@@ -157,6 +155,13 @@ function getVideoId(url){
   if(url.includes("shorts/")) return url.split("shorts/")[1].split("?")[0];
   if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
   if(url.includes("watch?v=")) return url.split("v=")[1].split("&")[0];
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
 }
 
 function loadAllVideos(){
@@ -179,7 +184,11 @@ function resetAndRender(){
   main.innerHTML='<div id="content"></div>';
   const content=document.getElementById("content");
 
-  let results=videosData.filter(v=>
+  // RANDOM REAL
+  let shuffled=[...videosData];
+  shuffle(shuffled);
+
+  let results=shuffled.filter(v=>
     v.title.toLowerCase().includes(search)||
     v.author_name.toLowerCase().includes(search)
   );
@@ -216,7 +225,7 @@ function resetAndRender(){
 function loadPlayer(id,name){
   main.innerHTML=`
   <div class="player">
-    <button onclick="resetAndRender()">⬅ Volver</button>
+    <button onclick="resetAndRender()">${langs[currentLang].back}</button>
     <iframe src="https://www.youtube.com/embed/${id}"></iframe>
     <div class="channel" onclick="openChannel('${name}')">
       <img src="https://ui-avatars.com/api/?name=${name}">
@@ -242,8 +251,11 @@ function openChannel(name){
 function openShorts(){
   main.innerHTML='<div class="shorts-container" id="shorts"></div>';
   const c=document.getElementById("shorts");
-  shortsLinks.forEach(l=>{
-    const id=getVideoId(l);
+
+  let arr=shortsLinks.map(l=>getVideoId(l));
+  shuffle(arr);
+
+  arr.forEach(id=>{
     const div=document.createElement("div");
     div.className="short";
     div.innerHTML=`
