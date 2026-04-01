@@ -15,8 +15,9 @@ input{flex:1;padding:6px;border-radius:20px;border:none}
 .video-info{padding:10px}
 iframe{width:100%;height:500px;border:none}
 .shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
-.short{height:100vh;display:flex;align-items:center;justify-content:center;scroll-snap-align:start}
-.short iframe{height:90%;width:320px}
+.short{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;scroll-snap-align:start}
+.short iframe{height:80%;width:320px}
+button{cursor:pointer}
 </style>
 
 </head>
@@ -26,149 +27,152 @@ iframe{width:100%;height:500px;border:none}
 <h2>🐔 ChickenGunTube</h2>
 <input id="search" placeholder="Buscar..." oninput="render()">
 <button onclick="openShorts()">Shorts</button>
+<button onclick="openSettings()">⚙️</button>
 </header>
 
 <div id="main"></div>
 
 <script>
-let videoLinks = [];
-let shortsLinks = [];
-let videosData = [];
-let order = [];
+let videoLinks=[],shortsLinks=[],videosData=[],order=[];
+let lang=localStorage.getItem("lang")||"es";
+let user=localStorage.getItem("user")||null;
+let comments=JSON.parse(localStorage.getItem("comments")||"{}");
 
-const main = document.getElementById("main");
+const texts={
+ es:{search:"Buscar...",back:"⬅ Volver",exit:"Salir",login:"Crear cuenta"},
+ en:{search:"Search...",back:"⬅ Back",exit:"Exit",login:"Create account"},
+ ru:{search:"Поиск...",back:"⬅ Назад",exit:"Выход",login:"Создать аккаунт"},
+ ua:{search:"Пошук...",back:"⬅ Назад",exit:"Вийти",login:"Створити акаунт"},
+ pt:{search:"Pesquisar...",back:"⬅ Voltar",exit:"Sair",login:"Criar conta"}
+};
+
+function applyLang(){
+ document.getElementById("search").placeholder=texts[lang].search;
+}
+
+function setLang(l){
+ lang=l; localStorage.setItem("lang",l); applyLang(); render();
+}
 
 function getID(url){
  if(url.includes("shorts/")) return url.split("shorts/")[1].split("?")[0];
  if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
- if(url.includes("watch?v=")) return url.split("v=")[1].split("&")[0];
 }
 
-function shuffle(a){
- for(let i=a.length-1;i>0;i--){
-  let j=Math.floor(Math.random()*(i+1));
-  [a[i],a[j]]=[a[j],a[i]];
- }
- return a;
-}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.random()* (i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 async function loadLinks(){
- const res = await fetch("./LinkVideo.html");
- let text = await res.text();
-
- // quitar html
- text = text.replace(/<[^>]*>/g,"");
-
- let mode = "";
-
- text.split("\n").forEach(line=>{
-  line = line.trim();
-
-  if(line === "#VIDEOS"){mode="video"; return;}
-  if(line === "#SHORTS"){mode="short"; return;}
-
-  const matches = line.match(/\"(https?:\/\/[^\"]+)\"/g);
-
-  if(matches){
-   matches.forEach(m=>{
-    let link = m.replace(/\"/g,"").replace(/,$/,"");
-
-    if(mode==="video") videoLinks.push(link);
-    if(mode==="short") shortsLinks.push(link);
-   });
+ let t=(await fetch("./LinkVideo.html")).text();
+ t=await t;
+ t=t.replace(/<[^>]*>/g,"");
+ let mode="";
+ t.split("\n").forEach(l=>{
+  l=l.trim();
+  if(l==="#VIDEOS")mode="video";
+  else if(l==="#SHORTS")mode="short";
+  else{
+   let m=l.match(/"(https?:\/\/[^\"]+)"/g);
+   if(m){m.forEach(x=>{
+    let link=x.replace(/"/g,"").replace(/,$/,"");
+    if(mode==="video")videoLinks.push(link);
+    if(mode==="short")shortsLinks.push(link);
+   });}
   }
  });
-
- console.log("VIDEOS:", videoLinks);
 }
 
 async function loadVideos(){
- videosData = [];
-
+ videosData=[];
  videoLinks.forEach(link=>{
-  const id = getID(link);
-
-  videosData.push({id,title:"Cargando...",author_name:"..."});
-
+  let id=getID(link);
+  videosData.push({id,title:"...",author_name:"..."});
   fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-  .then(r=>r.json())
-  .then(data=>{
-   let v = videosData.find(x=>x.id===id);
-   if(v){
-    v.title = data.title;
-    v.author_name = data.author_name;
-    updateCard(id);
-   }
-  });
+  .then(r=>r.json()).then(d=>{
+   let v=videosData.find(x=>x.id===id);
+   if(v){v.title=d.title;v.author_name=d.author_name;updateCard(id);} });
  });
-
- // RANDOM SOLO UNA VEZ
- order = shuffle(videoLinks.map(getID));
+ order=shuffle(videoLinks.map(getID));
 }
 
 function updateCard(id){
- let card = document.getElementById("c_"+id);
- let v = videosData.find(v=>v.id===id);
-
- if(card && v){
-  card.querySelector(".video-info").innerHTML =
-   `<div>${v.title}</div>
-    <div style="color:gray">${v.author_name}</div>`;
- }
+ let c=document.getElementById("c_"+id);
+ let v=videosData.find(v=>v.id===id);
+ if(c&&v){c.querySelector(".video-info").innerHTML=`<div>${v.title}</div><div style='color:gray'>${v.author_name}</div>`;}
 }
 
 function render(){
- let search = document.getElementById("search").value.toLowerCase();
-
- main.innerHTML = `<div class="container" id="c"></div>`;
- let c = document.getElementById("c");
-
+ let s=document.getElementById("search").value.toLowerCase();
+ main.innerHTML='<div class="container" id="c"></div>';
+ let c=document.getElementById("c");
  order.forEach(id=>{
-  let v = videosData.find(v=>v.id===id);
-  if(!v) return;
-
-  if(search && !(v.title.toLowerCase().includes(search) || v.author_name.toLowerCase().includes(search))) return;
-
-  let card = document.createElement("div");
-  card.className="video-card";
-  card.id="c_"+id;
-  card.onclick=()=>openVideo(id,v.author_name);
-
-  card.innerHTML = `
-  <img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
-  <div class="video-info">
-    <div>${v.title}</div>
-    <div style="color:gray">${v.author_name}</div>
-  </div>`;
-
+  let v=videosData.find(v=>v.id===id);
+  if(!v)return;
+  if(s && !(v.title.toLowerCase().includes(s)||v.author_name.toLowerCase().includes(s)))return;
+  let card=document.createElement("div");
+  card.className="video-card";card.id="c_"+id;
+  card.onclick=()=>openVideo(id);
+  card.innerHTML=`<img class='thumbnail' src='https://img.youtube.com/vi/${id}/hqdefault.jpg'><div class='video-info'><div>${v.title}</div><div style='color:gray'>${v.author_name}</div></div>`;
   c.appendChild(card);
  });
 }
 
-function openVideo(id,author){
- main.innerHTML = `
- <button onclick="render()">⬅ Volver</button>
+function openVideo(id){
+ let v=videosData.find(v=>v.id===id);
+ let comm=comments[id]||[];
+ main.innerHTML=`
+ <button onclick="render()">${texts[lang].back}</button>
  <iframe src="https://www.youtube.com/embed/${id}"></iframe>
- <h3>${author}</h3>
- `;
+ <h3>${v.author_name}</h3>
+ <div>
+  <input id="commentInput" placeholder="comment...">
+  <button onclick="addComment('${id}')">Enviar</button>
+  <div id="comments">${comm.map(c=>`<p>${c}</p>`).join("")}</div>
+ </div>`;
+}
+
+function addComment(id){
+ if(!user)return alert("Crea cuenta primero");
+ let input=document.getElementById("commentInput");
+ if(!comments[id])comments[id]=[];
+ comments[id].push(user+": "+input.value);
+ localStorage.setItem("comments",JSON.stringify(comments));
+ openVideo(id);
 }
 
 function openShorts(){
- main.innerHTML = `<div class="shorts-container" id="s"></div>`;
- let s = document.getElementById("s");
-
- let arr = shuffle(shortsLinks.map(getID));
-
- arr.forEach(id=>{
-  let div = document.createElement("div");
-  div.className="short";
-  div.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
-  s.appendChild(div);
+ main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><div class="shorts-container" id="s"></div>`;
+ let s=document.getElementById("s");
+ shuffle(shortsLinks.map(getID)).forEach(id=>{
+  let d=document.createElement("div");
+  d.className="short";
+  d.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
+  s.appendChild(d);
  });
 }
 
-// INIT
+function openSettings(){
+ main.innerHTML=`
+ <h2>${texts[lang].login}</h2>
+ <input id="userInput" placeholder="name">
+ <button onclick="createUser()">OK</button>
+ <h3>Idiomas</h3>
+ <button onclick="setLang('es')">Español</button>
+ <button onclick="setLang('en')">English</button>
+ <button onclick="setLang('ru')">Русский</button>
+ <button onclick="setLang('ua')">Українська</button>
+ <button onclick="setLang('pt')">Português</button>
+ `;
+}
+
+function createUser(){
+ let name=document.getElementById("userInput").value;
+ user=name;
+ localStorage.setItem("user",name);
+ alert("Cuenta creada");
+}
+
 (async()=>{
+ applyLang();
  await loadLinks();
  await loadVideos();
  render();
