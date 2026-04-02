@@ -10,12 +10,13 @@
  --card:#1f1f1f;
  --text:white;
  --accent:#ff3c3c;
+ --header:#202020;
 }
 
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-header{background:#202020;padding:10px;display:flex;gap:10px;align-items:center}
-header img{height:30px}
-input{flex:1;padding:8px;border-radius:20px;border:none;background:#2a2a2a;color:white}
+header{background:var(--header);padding:10px;display:flex;gap:10px;align-items:center}
+header img{height:50px} /* 🔥 logo más grande */
+input{flex:1;padding:8px;border-radius:20px;border:none;background:#2a2a2a;color:var(--text)}
 .container{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;padding:15px}
 @media (max-width:600px){.container{grid-template-columns:1fr}}
 .video-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s}
@@ -44,13 +45,34 @@ button{background:var(--accent);border:none;padding:8px 12px;border-radius:10px;
 <script>
 let videoLinks=[],shortsLinks=[],videosData=[],order=[];
 let theme=localStorage.getItem("theme")||"dark";
+let lang=localStorage.getItem("lang")||"es";
+
+const texts={
+ es:{search:"Buscar...",back:"⬅ Volver",exit:"Salir",settings:"Configuración"},
+ en:{search:"Search...",back:"⬅ Back",exit:"Exit",settings:"Settings"},
+ ru:{search:"Поиск...",back:"⬅ Назад",exit:"Выход",settings:"Настройки"},
+ ua:{search:"Пошук...",back:"⬅ Назад",exit:"Вийти",settings:"Налаштування"},
+ pt:{search:"Pesquisar...",back:"⬅ Voltar",exit:"Sair",settings:"Configurações"}
+};
 
 function applyTheme(){
  if(theme==="light"){
   document.documentElement.style.setProperty('--bg','#ffffff');
   document.documentElement.style.setProperty('--card','#eaeaea');
   document.documentElement.style.setProperty('--text','#000');
+  document.documentElement.style.setProperty('--header','#ffffff'); /* 🔥 header blanco */
  }
+}
+
+function applyLang(){
+ document.getElementById("search").placeholder=texts[lang].search;
+}
+
+function setLang(l){
+ lang=l;
+ localStorage.setItem("lang",l);
+ applyLang();
+ render();
 }
 
 function setTheme(t){
@@ -122,11 +144,11 @@ function render(){
 
 function openVideo(id){
  let v=videosData.find(v=>v.id===id);
- main.innerHTML=`<button onclick="render()">⬅ Volver</button><iframe src="https://www.youtube.com/embed/${id}"></iframe><h3>${v.author_name}</h3>`;
+ main.innerHTML=`<button onclick="render()">${texts[lang].back}</button><iframe src="https://www.youtube.com/embed/${id}"></iframe><h3>${v.author_name}</h3>`;
 }
 
 function openShorts(){
- main.innerHTML=`<button onclick="render()">Salir</button><div class="shorts-container" id="s"></div>`;
+ main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><div class="shorts-container" id="s"></div>`;
  let s=document.getElementById("s");
  shuffle(shortsLinks.map(getID)).forEach(id=>{
   let d=document.createElement("div");
@@ -138,8 +160,16 @@ function openShorts(){
 
 function openSettings(){
  main.innerHTML=`
- <button onclick="render()">Salir</button>
- <h2>Configuración</h2>
+ <button onclick="render()">${texts[lang].exit}</button>
+ <h2>${texts[lang].settings}</h2>
+
+ <h3>Idioma</h3>
+ <button onclick="setLang('es')">Español</button>
+ <button onclick="setLang('en')">English</button>
+ <button onclick="setLang('ru')">Русский</button>
+ <button onclick="setLang('ua')">Українська</button>
+ <button onclick="setLang('pt')">Português</button>
+
  <h3>Tema</h3>
  <button onclick="setTheme('dark')">Negro</button>
  <button onclick="setTheme('light')">Blanco</button>
@@ -148,6 +178,7 @@ function openSettings(){
 
 (async()=>{
  applyTheme();
+ applyLang();
  await loadLinks();
  await loadVideos();
  render();
