@@ -11,12 +11,13 @@
  --text:white;
  --accent:#ff3c3c;
  --header:#202020;
+ --input-bg:#2a2a2a;
 }
 
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
 header{background:var(--header);padding:10px;display:flex;gap:10px;align-items:center}
-header img{height:50px} /* 🔥 logo más grande */
-input{flex:1;padding:8px;border-radius:20px;border:none;background:var(--input-bg,#2a2a2a);color:var(--text)}
+header img{height:60px}
+input{flex:1;padding:8px;border-radius:20px;border:none;background:var(--input-bg);color:var(--text)}
 .container{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;padding:15px}
 @media (max-width:600px){.container{grid-template-columns:1fr}}
 .video-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s}
@@ -62,8 +63,13 @@ function applyTheme(){
   document.documentElement.style.setProperty('--text','#000');
   document.documentElement.style.setProperty('--header','#ffffff');
   document.documentElement.style.setProperty('--input-bg','#dddddd');
+ } else {
+  document.documentElement.style.setProperty('--bg','#0f0f0f');
+  document.documentElement.style.setProperty('--card','#1f1f1f');
+  document.documentElement.style.setProperty('--text','#fff');
+  document.documentElement.style.setProperty('--header','#202020');
+  document.documentElement.style.setProperty('--input-bg','#2a2a2a');
  }
-}
 }
 
 function applyLang(){
@@ -74,13 +80,13 @@ function setLang(l){
  lang=l;
  localStorage.setItem("lang",l);
  applyLang();
- render();
+ openSettings();
 }
 
 function setTheme(t){
  theme=t;
  localStorage.setItem("theme",t);
- location.reload();
+ applyTheme();
 }
 
 function getID(url){
@@ -173,20 +179,6 @@ function openSettings(){
  <button onclick="setLang('pt')">Português</button>
 
  <h3>${texts[lang].theme}</h3>
- <button onclick="setTheme('dark')">Negro</button>
- <button onclick="setTheme('light')">Blanco</button>
- `;
-}</button>
- <h2>${texts[lang].settings}</h2>
-
- <h3>Idioma</h3>
- <button onclick="setLang('es')">Español</button>
- <button onclick="setLang('en')">English</button>
- <button onclick="setLang('ru')">Русский</button>
- <button onclick="setLang('ua')">Українська</button>
- <button onclick="setLang('pt')">Português</button>
-
- <h3>Tema</h3>
  <button onclick="setTheme('dark')">Negro</button>
  <button onclick="setTheme('light')">Blanco</button>
  `;
