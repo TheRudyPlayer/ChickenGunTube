@@ -5,26 +5,35 @@
 <title>ChickenGunTube</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f0f0f;color:white}
-header{background:#202020;padding:10px;display:flex;gap:10px}
-input{flex:1;padding:6px;border-radius:20px;border:none}
+:root{
+ --bg:#0f0f0f;
+ --card:#1f1f1f;
+ --text:white;
+ --accent:#ff3c3c;
+}
+
+body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
+header{background:#202020;padding:10px;display:flex;gap:10px;align-items:center}
+header img{height:30px}
+input{flex:1;padding:8px;border-radius:20px;border:none;background:#2a2a2a;color:white}
 .container{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;padding:15px}
 @media (max-width:600px){.container{grid-template-columns:1fr}}
-.video-card{background:#1f1f1f;border-radius:10px;overflow:hidden;cursor:pointer}
+.video-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s}
+.video-card:hover{transform:scale(1.02)}
 .thumbnail{width:100%;height:160px;object-fit:cover}
 .video-info{padding:10px}
-iframe{width:100%;height:500px;border:none}
+iframe{width:100%;height:500px;border:none;border-radius:10px}
+button{background:var(--accent);border:none;padding:8px 12px;border-radius:10px;color:white}
 .shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
-.short{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;scroll-snap-align:start}
+.short{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .short iframe{height:80%;width:320px}
-button{cursor:pointer}
 </style>
 
 </head>
 <body>
 
 <header>
-<h2>🐔 ChickenGunTube</h2>
+<img src="images/chickentube_logo.png">
 <input id="search" placeholder="Buscar..." oninput="render()">
 <button onclick="openShorts()">Shorts</button>
 <button onclick="openSettings()">⚙️</button>
@@ -34,24 +43,20 @@ button{cursor:pointer}
 
 <script>
 let videoLinks=[],shortsLinks=[],videosData=[],order=[];
-let lang=localStorage.getItem("lang")||"es";
-let user=localStorage.getItem("user")||null;
-let comments=JSON.parse(localStorage.getItem("comments")||"{}");
+let theme=localStorage.getItem("theme")||"dark";
 
-const texts={
- es:{search:"Buscar...",back:"⬅ Volver",exit:"Salir",login:"Crear cuenta"},
- en:{search:"Search...",back:"⬅ Back",exit:"Exit",login:"Create account"},
- ru:{search:"Поиск...",back:"⬅ Назад",exit:"Выход",login:"Создать аккаунт"},
- ua:{search:"Пошук...",back:"⬅ Назад",exit:"Вийти",login:"Створити акаунт"},
- pt:{search:"Pesquisar...",back:"⬅ Voltar",exit:"Sair",login:"Criar conta"}
-};
-
-function applyLang(){
- document.getElementById("search").placeholder=texts[lang].search;
+function applyTheme(){
+ if(theme==="light"){
+  document.documentElement.style.setProperty('--bg','#ffffff');
+  document.documentElement.style.setProperty('--card','#eaeaea');
+  document.documentElement.style.setProperty('--text','#000');
+ }
 }
 
-function setLang(l){
- lang=l; localStorage.setItem("lang",l); applyLang(); render();
+function setTheme(t){
+ theme=t;
+ localStorage.setItem("theme",t);
+ location.reload();
 }
 
 function getID(url){
@@ -59,11 +64,10 @@ function getID(url){
  if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
 }
 
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.random()* (i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 async function loadLinks(){
- let t=(await fetch("./LinkVideo.html")).text();
- t=await t;
+ let t=await (await fetch("./LinkVideo.html")).text();
  t=t.replace(/<[^>]*>/g,"");
  let mode="";
  t.split("\n").forEach(l=>{
@@ -118,60 +122,11 @@ function render(){
 
 function openVideo(id){
  let v=videosData.find(v=>v.id===id);
- let comm=comments[id]||[];
-
- main.innerHTML=`
- <button onclick="render()">${texts[lang].back}</button>
- <iframe src="https://www.youtube.com/embed/${id}"></iframe>
- <h3>${v.author_name}</h3>
-
- <div>
-  <input id="commentInput" placeholder="comment...">
-  <button onclick="addComment('${id}')">Enviar</button>
- </div>
-
- <div id="comments">
-  ${comm.map((c,i)=>{
-    const isOwner = user && c.startsWith(user+":");
-    return `
-    <div style="margin-top:10px;background:#1f1f1f;padding:8px;border-radius:8px;">
-      <span>${c}</span>
-      ${isOwner ? `<button onclick="deleteComment('${id}',${i})" style="margin-left:10px;">🗑</button>` : ""}
-    </div>`;
-  }).join("")}
- </div>
- `;
-}
-
-function addComment(id){
- if(!user)return alert("Crea cuenta primero");
-
- let input=document.getElementById("commentInput");
- if(!input.value.trim()) return;
-
- if(!comments[id])comments[id]=[];
- comments[id].push(user+": "+input.value);
-
- localStorage.setItem("comments",JSON.stringify(comments));
- openVideo(id);
-}
-
-function deleteComment(id,index){
- if(!comments[id]) return;
-
- const comment = comments[id][index];
- if(!comment.startsWith(user+":")){
-   return alert("No puedes borrar este comentario");
- }
-
- comments[id].splice(index,1);
- localStorage.setItem("comments",JSON.stringify(comments));
-
- openVideo(id);
+ main.innerHTML=`<button onclick="render()">⬅ Volver</button><iframe src="https://www.youtube.com/embed/${id}"></iframe><h3>${v.author_name}</h3>`;
 }
 
 function openShorts(){
- main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><div class="shorts-container" id="s"></div>`;
+ main.innerHTML=`<button onclick="render()">Salir</button><div class="shorts-container" id="s"></div>`;
  let s=document.getElementById("s");
  shuffle(shortsLinks.map(getID)).forEach(id=>{
   let d=document.createElement("div");
@@ -183,27 +138,16 @@ function openShorts(){
 
 function openSettings(){
  main.innerHTML=`
- <h2>${texts[lang].login}</h2>
- <input id="userInput" placeholder="name">
- <button onclick="createUser()">OK</button>
- <h3>Idiomas</h3>
- <button onclick="setLang('es')">Español</button>
- <button onclick="setLang('en')">English</button>
- <button onclick="setLang('ru')">Русский</button>
- <button onclick="setLang('ua')">Українська</button>
- <button onclick="setLang('pt')">Português</button>
+ <button onclick="render()">Salir</button>
+ <h2>Configuración</h2>
+ <h3>Tema</h3>
+ <button onclick="setTheme('dark')">Negro</button>
+ <button onclick="setTheme('light')">Blanco</button>
  `;
 }
 
-function createUser(){
- let name=document.getElementById("userInput").value;
- user=name;
- localStorage.setItem("user",name);
- alert("Cuenta creada");
-}
-
 (async()=>{
- applyLang();
+ applyTheme();
  await loadLinks();
  await loadVideos();
  render();
