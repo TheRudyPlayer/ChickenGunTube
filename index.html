@@ -13,25 +13,18 @@
  --header:#202020;
  --input-bg:#2a2a2a;
 }
-
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
 header{background:var(--header);padding:10px;display:flex;gap:10px;align-items:center}
 header img{height:60px}
 input{flex:1;padding:8px;border-radius:20px;border:none;background:var(--input-bg);color:var(--text)}
-.container{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;padding:15px}
-@media (max-width:800px){
-  .container{
-    grid-template-columns:1fr; /* uno por uno en celular */
-  }
-
-  .thumbnail{
-    aspect-ratio:16/9; /* proporción real como este YouTube */
-  }
-}
+.container{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;padding:15px}
+@media (max-width:800px){.container{grid-template-columns:1fr}}
 .video-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s}
 .video-card:hover{transform:scale(1.02)}
 .thumbnail{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px}
 .video-info{padding:10px}
+.video-info div:first-child{font-weight:bold}
+.video-info div.channel{color:gray;font-size:0.9em}
 iframe{width:100%;height:500px;border:none;border-radius:10px}
 button{background:var(--accent);border:none;padding:8px 12px;border-radius:10px;color:white}
 .shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
@@ -56,13 +49,7 @@ let videoLinks=[],shortsLinks=[],videosData=[],order=[];
 let theme=localStorage.getItem("theme")||"dark";
 let lang=localStorage.getItem("lang")||"es";
 
-const texts={
- es:{search:"Buscar...",back:"⬅ Volver",exit:"Salir",settings:"Configuración",language:"Idioma",theme:"Tema"},
- en:{search:"Search...",back:"⬅ Back",exit:"Exit",settings:"Settings",language:"Language",theme:"Theme"},
- ru:{search:"Поиск...",back:"⬅ Назад",exit:"Выход",settings:"Настройки",language:"Язык",theme:"Тема"},
- ua:{search:"Пошук...",back:"⬅ Назад",exit:"Вийти",settings:"Налаштування",language:"Мова",theme:"Тема"},
- pt:{search:"Pesquisar...",back:"⬅ Voltar",exit:"Sair",settings:"Configurações",language:"Idioma",theme:"Tema"}
-};
+const texts={es:{search:"Buscar...",back:"⬅ Volver",exit:"Salir",settings:"Configuración",language:"Idioma",theme:"Tema"},en:{search:"Search...",back:"⬅ Back",exit:"Exit",settings:"Settings",language:"Language",theme:"Theme"},ru:{search:"Поиск...",back:"⬅ Назад",exit:"Выход",settings:"Настройки",language:"Язык",theme:"Тема"},ua:{search:"Пошук...",back:"⬅ Назад",exit:"Вийти",settings:"Налаштування",language:"Мова",theme:"Тема"},pt:{search:"Pesquisar...",back:"⬅ Voltar",exit:"Sair",settings:"Configurações",language:"Idioma",theme:"Tema"}};
 
 function applyTheme(){
  if(theme==="light"){
@@ -80,125 +67,27 @@ function applyTheme(){
  }
 }
 
-function applyLang(){
- document.getElementById("search").placeholder=texts[lang].search;
-}
-
-function setLang(l){
- lang=l;
- localStorage.setItem("lang",l);
- applyLang();
- openSettings();
-}
-
-function setTheme(t){
- theme=t;
- localStorage.setItem("theme",t);
- applyTheme();
-}
-
-function getID(url){
- if(url.includes("shorts/")) return url.split("shorts/")[1].split("?")[0];
- if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
-}
-
+function applyLang(){document.getElementById("search").placeholder=texts[lang].search;}
+function setLang(l){lang=l;localStorage.setItem("lang",l);applyLang();openSettings();}
+function setTheme(t){theme=t;localStorage.setItem("theme",t);applyTheme();}
+function getID(url){if(url.includes("shorts/")) return url.split("shorts/")[1].split("?")[0];if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];}
 function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-async function loadLinks(){
- let t=await (await fetch("./LinkVideo.html")).text();
- t=t.replace(/<[^>]*>/g,"");
- let mode="";
- t.split("\n").forEach(l=>{
-  l=l.trim();
-  if(l==="#VIDEOS")mode="video";
-  else if(l==="#SHORTS")mode="short";
-  else{
-   let m=l.match(/"(https?:\/\/[^\"]+)"/g);
-   if(m){m.forEach(x=>{
-    let link=x.replace(/"/g,"").replace(/,$/,"");
-    if(mode==="video")videoLinks.push(link);
-    if(mode==="short")shortsLinks.push(link);
-   });}
-  }
- });
-}
+async function loadLinks(){let t=await (await fetch("./LinkVideo.html")).text();t=t.replace(/<[^>]*>/g,"");let mode="";t.split("\n").forEach(l=>{l=l.trim();if(l==="#VIDEOS")mode="video";else if(l==="#SHORTS")mode="short";else{let m=l.match(/"(https?:\/\/[^\"]+)"/g);if(m){m.forEach(x=>{let link=x.replace(/"/g,"").replace(/,$/,"");if(mode==="video")videoLinks.push(link);if(mode==="short")shortsLinks.push(link);});}}});}
 
-async function loadVideos(){
- videosData=[];
- videoLinks.forEach(link=>{
-  let id=getID(link);
-  videosData.push({id,title:"...",author_name:"..."});
-  fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-  .then(r=>r.json()).then(d=>{
-   let v=videosData.find(x=>x.id===id);
-   if(v){v.title=d.title;v.author_name=d.author_name;updateCard(id);} });
- });
- order=shuffle(videoLinks.map(getID));
-}
+async function loadVideos(){videosData=[];videoLinks.forEach(link=>{let id=getID(link);videosData.push({id,title:"...",author_name:"..."});fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`).then(r=>r.json()).then(d=>{let v=videosData.find(x=>x.id===id);if(v){v.title=d.title;v.author_name=d.author_name;updateCard(id);}});});order=shuffle(videoLinks.map(getID));}
 
-function updateCard(id){
- let c=document.getElementById("c_"+id);
- let v=videosData.find(v=>v.id===id);
- if(c&&v){c.querySelector(".video-info").innerHTML=`<div>${v.title}</div><div style='color:gray'>${v.author_name}</div>`;}
-}
+function updateCard(id){let c=document.getElementById("c_"+id);let v=videosData.find(v=>v.id===id);if(c&&v){c.querySelector(".video-info").innerHTML=`<div>${v.title}</div><div class='channel'>${v.author_name}</div>`;}}
 
-function render(){
- let s=document.getElementById("search").value.toLowerCase();
- main.innerHTML='<div class="container" id="c"></div>';
- let c=document.getElementById("c");
- order.forEach(id=>{
-  let v=videosData.find(v=>v.id===id);
-  if(!v)return;
-  if(s && !(v.title.toLowerCase().includes(s)||v.author_name.toLowerCase().includes(s)))return;
-  let card=document.createElement("div");
-  card.className="video-card";card.id="c_"+id;
-  card.onclick=()=>openVideo(id);
-  card.innerHTML=`<img class='thumbnail' src='https://img.youtube.com/vi/${id}/hqdefault.jpg'><div class='video-info'><div>${v.title}</div><div style='color:gray'>${v.author_name}</div></div>`;
-  c.appendChild(card);
- });
-}
+function render(){let s=document.getElementById("search").value.toLowerCase();main.innerHTML='<div class="container" id="c"></div>';let c=document.getElementById("c");order.forEach(id=>{let v=videosData.find(v=>v.id===id);if(!v)return;if(s && !(v.title.toLowerCase().includes(s)||v.author_name.toLowerCase().includes(s)))return;let card=document.createElement("div");card.className="video-card";card.id="c_"+id;card.onclick=()=>openVideo(id);card.innerHTML=`<img class='thumbnail' src='https://img.youtube.com/vi/${id}/hqdefault.jpg'><div class='video-info'><div>${v.title}</div><div class='channel'>${v.author_name}</div></div>`;c.appendChild(card);});}
 
-function openVideo(id){
- let v=videosData.find(v=>v.id===id);
- main.innerHTML=`<button onclick="render()">${texts[lang].back}</button><iframe src="https://www.youtube.com/embed/${id}"></iframe><h3>${v.author_name}</h3>`;
-}
+function openVideo(id){let v=videosData.find(v=>v.id===id);main.innerHTML=`<button onclick="render()">${texts[lang].back}</button><iframe src="https://www.youtube.com/embed/${id}"></iframe><h3>${v.author_name}</h3>`;}
 
-function openShorts(){
- main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><div class="shorts-container" id="s"></div>`;
- let s=document.getElementById("s");
- shuffle(shortsLinks.map(getID)).forEach(id=>{
-  let d=document.createElement("div");
-  d.className="short";
-  d.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
-  s.appendChild(d);
- });
-}
+function openShorts(){main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><div class="shorts-container" id="s"></div>`;let s=document.getElementById("s");shuffle(shortsLinks.map(getID)).forEach(id=>{let d=document.createElement("div");d.className="short";d.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;s.appendChild(d);});}
 
-function openSettings(){
- main.innerHTML=`
- <button onclick="render()">${texts[lang].exit}</button>
- <h2>${texts[lang].settings}</h2>
+function openSettings(){main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><h2>${texts[lang].settings}</h2><h3>${texts[lang].language}</h3><button onclick="setLang('es')">Español</button><button onclick="setLang('en')">English</button><button onclick="setLang('ru')">Русский</button><button onclick="setLang('ua')">Українська</button><button onclick="setLang('pt')">Português</button><h3>${texts[lang].theme}</h3><button onclick="setTheme('dark')">Negro</button><button onclick="setTheme('light')">Blanco</button>`;}
 
- <h3>${texts[lang].language}</h3>
- <button onclick="setLang('es')">Español</button>
- <button onclick="setLang('en')">English</button>
- <button onclick="setLang('ru')">Русский</button>
- <button onclick="setLang('ua')">Українська</button>
- <button onclick="setLang('pt')">Português</button>
-
- <h3>${texts[lang].theme}</h3>
- <button onclick="setTheme('dark')">Oscuro</button>
- <button onclick="setTheme('light')">Claro</button>
- `;
-}
-
-(async()=>{
- applyTheme();
- applyLang();
- await loadLinks();
- await loadVideos();
- render();
-})();
+(async()=>{applyTheme();applyLang();await loadLinks();await loadVideos();render();})();
 </script>
 
 </body>
