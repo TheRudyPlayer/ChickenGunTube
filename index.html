@@ -22,10 +22,27 @@ body {
   height: 60px; /* Logo grande */
 }
 .videos {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
   padding: 20px;
+}
+.card {
+  cursor: pointer;
+}
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+.card .title {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+.card .channel {
+  color: #aaa;
+  font-size: 12px;
+  margin-top: 2px;
 }
 </style>
 </head>
@@ -38,27 +55,69 @@ body {
 </div>
 
 <div class="videos" id="videoContainer">
-  <!-- Los videos se mostrarán aquí solo después de que VideoSystem pase los datos -->
+  <!-- Los videos llegarán desde VideoSystem -->
 </div>
 
 <script>
-// 🔹 Recibir datos de VideoSystem (opcional)
-window.addEventListener("message", (event) => {
-  if (event.data.type === "videoData") {
-    const container = document.getElementById("videoContainer");
-    container.innerHTML = ""; // Limpiar si había algo
-    event.data.videos.forEach(v => {
-      const div = document.createElement("div");
-      div.style.marginBottom = "20px";
-      div.innerHTML = `
-        <img src="${v.thumbnail}" style="width:300px;border-radius:10px;">
-        <div style="font-weight:bold;margin-top:5px;">${v.title}</div>
-        <div style="color:#aaa;">${v.channel}</div>
-      `;
-      container.appendChild(div);
-    });
+// 🔹 Función para pedir todos los links a LinkVideo
+async function obtenerLinks() {
+  const res = await fetch("LinkVideo.html");
+  const text = await res.text();
+
+  // Extraer array de links
+  const arrayMatch = text.match(/const videos = \[(.*?)\]/s);
+  let videos = [];
+  if (arrayMatch) {
+    videos = arrayMatch[1]
+      .split(",")
+      .map(v => v.trim().replace(/['"]/g, ""))
+      .filter(v => v.length > 0);
   }
-});
+  return videos;
+}
+
+// 🔹 Crear tarjetas usando VideoSystem para datos reales
+async function cargarVideos() {
+  const videos = await obtenerLinks();
+  const container = document.getElementById("videoContainer");
+
+  for (let url of videos) {
+    // Obtener ID de YouTube
+    let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
+
+    // Crear tarjeta
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <img src="https://img.youtube.com/vi/${id}/0.jpg">
+      <div class="title">Cargando...</div>
+      <div class="channel"></div>
+    `;
+
+    // Obtener título y canal con oEmbed
+    fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
+      .then(res => res.json())
+      .then(data => {
+        div.querySelector(".title").textContent = data.title;
+        div.querySelector(".channel").textContent = data.author_name;
+      })
+      .catch(() => {
+        div.querySelector(".title").textContent = "Video";
+        div.querySelector(".channel").textContent = "";
+      });
+
+    // Al hacer click → abrir VideoSystem
+    div.onclick = () => {
+      window.location.href = "VideoSystem.html?url=" + encodeURIComponent(url);
+    };
+
+    container.appendChild(div);
+  }
+}
+
+// Ejecutar
+cargarVideos();
 </script>
 
 </body>
