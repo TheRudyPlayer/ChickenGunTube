@@ -15,14 +15,14 @@ body {
 }
 .container {
   width: 100%;
-  max-width: 960px; /* 🔹 Tamaño tipo YouTube */
+  max-width: 960px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 iframe {
   width: 100%;
-  aspect-ratio: 16/9; /* 🔹 Responsive y tamaño YouTube */
+  aspect-ratio: 16/9;
   border: none;
   border-radius: 12px;
 }
@@ -55,17 +55,26 @@ const url = params.get("url");
 if (!url) {
   document.body.innerHTML = "Error al cargar el video";
 } else {
-  // Sacar ID
   let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
 
-  document.getElementById("player").src = "https://www.youtube.com/embed/" + id;
+  const iframe = document.getElementById("player");
+  iframe.src = "https://www.youtube.com/embed/" + id;
 
-  // oEmbed para título y canal
   fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
     .then(res => res.json())
     .then(data => {
       document.getElementById("title").textContent = data.title;
       document.getElementById("channel").textContent = data.author_name;
+
+      // 🔹 Pasar datos a index (opcional)
+      window.opener?.postMessage({
+        type: "videoData",
+        videos: [{
+          title: data.title,
+          channel: data.author_name,
+          thumbnail: `https://img.youtube.com/vi/${id}/0.jpg`
+        }]
+      }, "*");
     })
     .catch(() => {
       document.getElementById("title").textContent = "Video";
