@@ -13,226 +13,156 @@
  --header:#202020;
  --input-bg:#2a2a2a;
 }
+
 body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
 header{background:var(--header);padding:10px;display:flex;gap:10px;align-items:center}
 header img{height:60px}
 input{flex:1;padding:8px;border-radius:20px;border:none;background:var(--input-bg);color:var(--text)}
+
 .container{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;padding:15px}
 @media (max-width:800px){.container{grid-template-columns:1fr}}
-.video-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:.2s}
-.video-card:hover{transform:scale(1.02)}
-.thumbnail{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px}
+
+.video-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer}
+.thumbnail{width:100%;aspect-ratio:16/9;object-fit:cover}
 .video-info{padding:10px}
-.video-info div:first-child{font-weight:bold}
-.video-info div.channel{color:gray;font-size:0.9em}
+.channel{color:gray;font-size:0.9em;cursor:pointer}
+
 iframe{width:100%;height:500px;border:none;border-radius:10px}
 button{background:var(--accent);border:none;padding:8px 12px;border-radius:10px;color:white}
-.shorts-container{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
-.short{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.short iframe{height:80%;width:320px}
-</style>
 
+</style>
 </head>
 <body>
 
 <header>
 <img src="images/chickentube_logo.png">
 <input id="search" placeholder="Buscar..." oninput="render()">
-<button onclick="openShorts()">Shorts</button>
 <button onclick="openSettings()">⚙️</button>
 </header>
 
 <div id="main"></div>
 
 <script>
-let videoLinks=[],shortsLinks=[],videosData=[],order=[];
+let videoLinks=[],videosData=[],order=[];
 let theme=localStorage.getItem("theme")||"dark";
-let lang=localStorage.getItem("lang")||"es";
-
-const texts={es:{search:"Buscar...",back:"⬅ Volver",exit:"Salir",settings:"Configuración",language:"Idioma",theme:"Tema"},en:{search:"Search...",back:"⬅ Back",exit:"Exit",settings:"Settings",language:"Language",theme:"Theme"},ru:{search:"Поиск...",back:"⬅ Назад",exit:"Выход",settings:"Настройки",language:"Язык",theme:"Тема"},ua:{search:"Пошук...",back:"⬅ Назад",exit:"Вийти",settings:"Налаштування",language:"Мова",theme:"Тема"},pt:{search:"Pesquisar...",back:"⬅ Voltar",exit:"Sair",settings:"Configurações",language:"Idioma",theme:"Tema"}};
 
 function applyTheme(){
  if(theme==="light"){
-  document.documentElement.style.setProperty('--bg','#ffffff');
-  document.documentElement.style.setProperty('--card','#eaeaea');
+  document.documentElement.style.setProperty('--bg','#fff');
+  document.documentElement.style.setProperty('--card','#eee');
   document.documentElement.style.setProperty('--text','#000');
-  document.documentElement.style.setProperty('--header','#ffffff');
-  document.documentElement.style.setProperty('--input-bg','#dddddd');
- } else {
-  document.documentElement.style.setProperty('--bg','#0f0f0f');
-  document.documentElement.style.setProperty('--card','#1f1f1f');
-  document.documentElement.style.setProperty('--text','#fff');
-  document.documentElement.style.setProperty('--header','#202020');
-  document.documentElement.style.setProperty('--input-bg','#2a2a2a');
+  document.documentElement.style.setProperty('--header','#fff');
+  document.documentElement.style.setProperty('--input-bg','#ddd');
  }
 }
 
-function applyLang(){document.getElementById("search").placeholder=texts[lang].search;}
-function setLang(l){lang=l;localStorage.setItem("lang",l);applyLang();openSettings();}
-function setTheme(t){theme=t;localStorage.setItem("theme",t);applyTheme();}
-function getID(url){if(url.includes("shorts/")) return url.split("shorts/")[1].split("?")[0];if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];}
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function getID(url){
+ return url.split("youtu.be/")[1].split("?")[0];
+}
 
-async function loadLinks(){let t=await (await fetch("./LinkVideo.html")).text();t=t.replace(/<[^>]*>/g,"");let mode="";t.split("\n").forEach(l=>{l=l.trim();if(l==="#VIDEOS")mode="video";else if(l==="#SHORTS")mode="short";else{let m=l.match(/"(https?:\/\/[^\"]+)"/g);if(m){m.forEach(x=>{let link=x.replace(/"/g,"").replace(/,$/,"");if(mode==="video")videoLinks.push(link);if(mode==="short")shortsLinks.push(link);});}}});}
+function shuffle(a){return a.sort(()=>Math.random()-0.5)}
 
-async function loadVideos(){videosData=[];videoLinks.forEach(link=>{let id=getID(link);videosData.push({id,title:"...",author_name:"..."});fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`).then(r=>r.json()).then(d=>{let v=videosData.find(x=>x.id===id);if(v){v.title=d.title;v.author_name=d.author_name;updateCard(id);}});});order=shuffle(videoLinks.map(getID));}
+async function loadLinks(){
+ let t=await (await fetch("./LinkVideo.html")).text();
+ t=t.replace(/<[^>]*>/g,"");
+ t.match(/"(https?:[^\"]+)"/g).forEach(x=>videoLinks.push(x.replace(/"/g,"")));
+}
 
-function updateCard(id){let c=document.getElementById("c_"+id);let v=videosData.find(v=>v.id===id);if(c&&v){c.querySelector(".video-info").innerHTML=`<div>${v.title}</div><div class='channel'>${v.author_name}</div>`;}}
+async function loadVideos(){
+ videosData=[];
+ videoLinks.forEach(link=>{
+  let id=getID(link);
+  videosData.push({id,title:"...",author_name:"..."});
 
-function render(){let s=document.getElementById("search").value.toLowerCase();main.innerHTML='<div class="container" id="c"></div>';let c=document.getElementById("c");order.forEach(id=>{let v=videosData.find(v=>v.id===id);if(!v)return;if(s && !(v.title.toLowerCase().includes(s)||v.author_name.toLowerCase().includes(s)))return;let card=document.createElement("div");card.className="video-card";card.id="c_"+id;card.onclick=()=>openVideo(id);card.innerHTML=`<img class='thumbnail' src='https://img.youtube.com/vi/${id}/hqdefault.jpg'><div class='video-info'><div>${v.title}</div><div class='channel'>${v.author_name}</div></div>`;c.appendChild(card);});}
+  fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+  .then(r=>r.json()).then(d=>{
+   let v=videosData.find(x=>x.id===id);
+   if(v){v.title=d.title;v.author_name=d.author_name;render();}
+  });
+ });
+ order=shuffle(videoLinks.map(getID));
+}
+
+function render(){
+ let s=document.getElementById("search").value.toLowerCase();
+ main.innerHTML='<div class="container"></div>';
+ let c=main.firstChild;
+
+ order.forEach(id=>{
+  let v=videosData.find(v=>v.id===id);
+  if(!v)return;
+  if(s && !(v.title.toLowerCase().includes(s)||v.author_name.toLowerCase().includes(s)))return;
+
+  let card=document.createElement("div");
+  card.className="video-card";
+  card.onclick=()=>openVideo(id);
+
+  card.innerHTML=`
+   <img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
+   <div class="video-info">
+     <div>${v.title}</div>
+     <div class="channel" onclick="event.stopPropagation();openChannel('${v.author_name}')">${v.author_name}</div>
+   </div>
+  `;
+
+  c.appendChild(card);
+ });
+}
 
 function openVideo(id){
  let v=videosData.find(v=>v.id===id);
  main.innerHTML=`
- <button onclick="render()">${texts[lang].back}</button>
+ <button onclick="render()">⬅</button>
  <iframe src="https://www.youtube.com/embed/${id}"></iframe>
- 
- <h3 style="cursor:pointer" onclick="openChannel('${v.author_name}')">${v.author_name}</h3>
+ <h3 onclick="openChannel('${v.author_name}')">${v.author_name}</h3>
  `;
 }
 
-function openChannel(channelName){
- let vids = videosData.filter(v=>v.author_name===channelName);
-
+function openChannel(name){
  main.innerHTML=`
- <button onclick="render()">${texts[lang].back}</button>
- 
- <div style="display:flex;align-items:center;gap:10px;margin:10px">
-   <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(channelName)}&background=ff3c3c&color=fff" style="width:60px;height:60px;border-radius:50%">
-   <h2>${channelName}</h2>
- </div>
-
- <div style="display:flex;gap:10px;margin:10px">
-   <button onclick="renderChannelVideos('${channelName}')">Videos</button>
-   <button onclick="renderChannelShorts('${channelName}')">Shorts</button>
-   <button onclick="renderChannelAlbums('${channelName}')">Albums</button>
- </div>
-
- <div class="container" id="channelContent"></div>
+ <button onclick="render()">⬅</button>
+ <h2>${name}</h2>
+ <div class="container" id="ch"></div>
  `;
 
- renderChannelVideos(channelName);
-}
+ let c=document.getElementById("ch");
 
-function renderChannelVideos(channelName){
- let container=document.getElementById("channelContent");
- if(!container) return;
- container.innerHTML="";
+ videosData.filter(v=>v.author_name===name).forEach(v=>{
+  let card=document.createElement("div");
+  card.className="video-card";
+  card.onclick=()=>openVideo(v.id);
 
- let vids = videosData.filter(v=>v.author_name===channelName);
- 
- vids.forEach(v=>{
-   let card=document.createElement("div");
-   card.className="video-card";
-   card.onclick=()=>openVideo(v.id);
+  card.innerHTML=`
+   <img class="thumbnail" src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg">
+   <div class="video-info">
+     <div>${v.title}</div>
+     <div class="channel">${v.author_name}</div>
+   </div>
+  `;
 
-   card.innerHTML=`
-     <img class='thumbnail' src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'>
-     <div class='video-info'>
-       <div>${v.title}</div>
-       <div class='channel' onclick="event.stopPropagation();openChannel('${v.author_name}')">${v.author_name}</div>
-     </div>
-   `;
-
-   container.appendChild(card);
+  c.appendChild(card);
  });
 
- if(vids.length===0){
-   container.innerHTML="<p>No hay videos de este canal</p>";
- }
+ if(!c.innerHTML) c.innerHTML="<p>No hay videos</p>";
 }
 
-function renderChannelShorts(channelName){
- let container=document.getElementById("channelContent");
- if(!container) return;
-
- container.innerHTML="";
-
- let shorts = shortsLinks
-   .map(getID)
-   .map(id=>videosData.find(v=>v.id===id))
-   .filter(v=>v && v.author_name===channelName);
-
- if(shorts.length===0){
-   container.innerHTML="<p>No hay shorts de este canal</p>";
-   return;
- }
-
- shorts.forEach(v=>{
-   let card=document.createElement("div");
-   card.className="video-card";
-   card.onclick=()=>openVideo(v.id);
-
-   card.innerHTML=`
-     <img class='thumbnail' src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'>
-     <div class='video-info'>
-       <div>${v.title}</div>
-       <div class='channel'>${v.author_name}</div>
-     </div>
-   `;
-
-   container.appendChild(card);
- });
-}
-
-function renderChannelAlbums(channelName){
- let container=document.getElementById("channelContent");
- if(!container) return;
- container.innerHTML="<p>Albums próximamente...</p>";
-}</button>
- 
- <div style="display:flex;align-items:center;gap:10px;margin:10px">
-   <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(channelName)}&background=ff3c3c&color=fff" style="width:60px;height:60px;border-radius:50%">
-   <h2>${channelName}</h2>
- </div>
-
- <div style="display:flex;gap:10px;margin:10px">
-   <button onclick="renderChannelVideos('${channelName}')">Videos</button>
-   <button onclick="renderChannelShorts('${channelName}')">Shorts</button>
-   <button onclick="renderChannelAlbums('${channelName}')">Albums</button>
- </div>
-
- <div class="container" id="channelContent"></div>
+function openSettings(){
+ main.innerHTML=`
+ <button onclick="render()">⬅</button>
+ <h2>Configuración</h2>
+ <button onclick="setTheme('dark')">Negro</button>
+ <button onclick="setTheme('light')">Blanco</button>
  `;
-
- renderChannelVideos(channelName);
 }
 
-function renderChannelVideos(channelName){
- let container=document.getElementById("channelContent");
- container.innerHTML="";
+function setTheme(t){theme=t;localStorage.setItem("theme",t);location.reload();}
 
- let vids = videosData.filter(v=>v.author_name===channelName);
- vids.forEach(v=>{
-   let card=document.createElement("div");
-   card.className="video-card";
-   card.onclick=()=>openVideo(v.id);
-   card.innerHTML=`
-     <img class='thumbnail' src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'>
-     <div class='video-info'>
-       <div>${v.title}</div>
-       <div class='channel'>${v.author_name}</div>
-     </div>
-   `;
-   container.appendChild(card);
- });
-}
-
-function renderChannelShorts(channelName){
- let container=document.getElementById("channelContent");
- container.innerHTML="<p>Shorts próximamente...</p>";
-}
-
-function renderChannelAlbums(channelName){
- let container=document.getElementById("channelContent");
- container.innerHTML="<p>Albums próximamente...</p>";
-}</button><iframe src="https://www.youtube.com/embed/${id}"></iframe><h3>${v.author_name}</h3>`;}
-
-function openShorts(){main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><div class="shorts-container" id="s"></div>`;let s=document.getElementById("s");shuffle(shortsLinks.map(getID)).forEach(id=>{let d=document.createElement("div");d.className="short";d.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;s.appendChild(d);});}
-
-function openSettings(){main.innerHTML=`<button onclick="render()">${texts[lang].exit}</button><h2>${texts[lang].settings}</h2><h3>${texts[lang].language}</h3><button onclick="setLang('es')">Español</button><button onclick="setLang('en')">English</button><button onclick="setLang('ru')">Русский</button><button onclick="setLang('ua')">Українська</button><button onclick="setLang('pt')">Português</button><h3>${texts[lang].theme}</h3><button onclick="setTheme('dark')">Negro</button><button onclick="setTheme('light')">Blanco</button>`;}
-
-(async()=>{applyTheme();applyLang();await loadLinks();await loadVideos();render();})();
+(async()=>{
+ applyTheme();
+ await loadLinks();
+ await loadVideos();
+ render();
+})();
 </script>
 
 </body>
