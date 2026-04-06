@@ -12,7 +12,32 @@ body {
   display: flex;
   justify-content: center;
   padding: 20px;
+  flex-direction: column;
+  align-items: center;
 }
+
+/* HEADER */
+.header {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+.header img.logo {
+  height: 60px;
+  cursor: pointer;
+}
+.header .back-btn {
+  font-size: 30px;
+  margin-right: 15px;
+  cursor: pointer;
+  color: white;
+  user-select: none;
+}
+
+/* CONTENEDOR VIDEO */
 .container {
   width: 100%;
   max-width: 960px;
@@ -42,6 +67,11 @@ iframe {
 </head>
 <body>
 
+<div class="header">
+  <div class="back-btn" onclick="window.location.href='index.html'">&lt;</div>
+  <img src="images/chickentube_logo.png" class="logo" onclick="window.location.href='index.html'">
+</div>
+
 <div class="container">
   <iframe id="player" allowfullscreen></iframe>
   <div id="title" class="title"></div>
@@ -65,16 +95,6 @@ if (!url) {
     .then(data => {
       document.getElementById("title").textContent = data.title;
       document.getElementById("channel").textContent = data.author_name;
-
-      // 🔹 Pasar datos a index (opcional)
-      window.opener?.postMessage({
-        type: "videoData",
-        videos: [{
-          title: data.title,
-          channel: data.author_name,
-          thumbnail: `https://img.youtube.com/vi/${id}/0.jpg`
-        }]
-      }, "*");
     })
     .catch(() => {
       document.getElementById("title").textContent = "Video";
