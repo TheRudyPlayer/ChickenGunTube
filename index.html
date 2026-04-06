@@ -19,7 +19,8 @@ body {
   border-bottom: 1px solid #222;
 }
 .header .logo img {
-  height: 60px; /* Logo grande */
+  height: 60px;
+  cursor: pointer;
 }
 .videos {
   display: grid;
@@ -33,16 +34,32 @@ body {
 .card img {
   width: 100%;
   border-radius: 10px;
+  display: block;
+}
+.card .title, .card .channel {
+  margin-top: 5px;
 }
 .card .title {
-  margin-top: 8px;
   font-weight: bold;
   font-size: 14px;
 }
 .card .channel {
   color: #aaa;
   font-size: 12px;
-  margin-top: 2px;
+}
+
+/* 🔹 Skeleton de carga */
+.skeleton {
+  background: #222;
+  border-radius: 10px;
+  width: 100%;
+  height: 120px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% {opacity: 0.6;}
+  50% {opacity: 0.3;}
+  100% {opacity: 0.6;}
 }
 </style>
 </head>
@@ -50,21 +67,17 @@ body {
 
 <div class="header">
   <div class="logo">
-    <img src="images/chickentube_logo.png">
+    <img src="images/chickentube_logo.png" onclick="window.location.href='index.html'">
   </div>
 </div>
 
-<div class="videos" id="videoContainer">
-  <!-- Los videos llegarán desde VideoSystem -->
-</div>
+<div class="videos" id="videoContainer"></div>
 
 <script>
-// 🔹 Función para pedir todos los links a LinkVideo
+// 🔹 Pedir los links de LinkVideo
 async function obtenerLinks() {
   const res = await fetch("LinkVideo.html");
   const text = await res.text();
-
-  // Extraer array de links
   const arrayMatch = text.match(/const videos = \[(.*?)\]/s);
   let videos = [];
   if (arrayMatch) {
@@ -76,47 +89,54 @@ async function obtenerLinks() {
   return videos;
 }
 
-// 🔹 Crear tarjetas usando VideoSystem para datos reales
+// 🔹 Mezclar array
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// 🔹 Cargar videos
 async function cargarVideos() {
-  const videos = await obtenerLinks();
+  let videos = await obtenerLinks();
+  videos = shuffle(videos); // 🔹 Aleatorio
   const container = document.getElementById("videoContainer");
 
   for (let url of videos) {
-    // Obtener ID de YouTube
-    let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
-
-    // Crear tarjeta
+    // Skeleton
     const div = document.createElement("div");
     div.className = "card";
+    div.innerHTML = `<div class="skeleton"></div>`;
+    container.appendChild(div);
 
-    div.innerHTML = `
-      <img src="https://img.youtube.com/vi/${id}/0.jpg">
-      <div class="title">Cargando...</div>
-      <div class="channel"></div>
-    `;
+    let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
 
-    // Obtener título y canal con oEmbed
     fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
       .then(res => res.json())
       .then(data => {
-        div.querySelector(".title").textContent = data.title;
-        div.querySelector(".channel").textContent = data.author_name;
+        div.innerHTML = `
+          <img src="https://img.youtube.com/vi/${id}/0.jpg">
+          <div class="title">${data.title}</div>
+          <div class="channel">${data.author_name}</div>
+        `;
       })
       .catch(() => {
-        div.querySelector(".title").textContent = "Video";
-        div.querySelector(".channel").textContent = "";
+        div.innerHTML = `
+          <img src="https://img.youtube.com/vi/${id}/0.jpg">
+          <div class="title">Video</div>
+          <div class="channel"></div>
+        `;
       });
 
-    // Al hacer click → abrir VideoSystem
+    // Click para abrir VideoSystem
     div.onclick = () => {
       window.location.href = "VideoSystem.html?url=" + encodeURIComponent(url);
     };
-
-    container.appendChild(div);
   }
 }
 
-// Ejecutar
 cargarVideos();
 </script>
 
