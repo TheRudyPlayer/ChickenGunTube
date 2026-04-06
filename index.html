@@ -116,6 +116,90 @@ function openChannel(channelName){
 
 function renderChannelVideos(channelName){
  let container=document.getElementById("channelContent");
+ if(!container) return;
+ container.innerHTML="";
+
+ let vids = videosData.filter(v=>v.author_name===channelName);
+ 
+ vids.forEach(v=>{
+   let card=document.createElement("div");
+   card.className="video-card";
+   card.onclick=()=>openVideo(v.id);
+
+   card.innerHTML=`
+     <img class='thumbnail' src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'>
+     <div class='video-info'>
+       <div>${v.title}</div>
+       <div class='channel' onclick="event.stopPropagation();openChannel('${v.author_name}')">${v.author_name}</div>
+     </div>
+   `;
+
+   container.appendChild(card);
+ });
+
+ if(vids.length===0){
+   container.innerHTML="<p>No hay videos de este canal</p>";
+ }
+}
+
+function renderChannelShorts(channelName){
+ let container=document.getElementById("channelContent");
+ if(!container) return;
+
+ container.innerHTML="";
+
+ let shorts = shortsLinks
+   .map(getID)
+   .map(id=>videosData.find(v=>v.id===id))
+   .filter(v=>v && v.author_name===channelName);
+
+ if(shorts.length===0){
+   container.innerHTML="<p>No hay shorts de este canal</p>";
+   return;
+ }
+
+ shorts.forEach(v=>{
+   let card=document.createElement("div");
+   card.className="video-card";
+   card.onclick=()=>openVideo(v.id);
+
+   card.innerHTML=`
+     <img class='thumbnail' src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'>
+     <div class='video-info'>
+       <div>${v.title}</div>
+       <div class='channel'>${v.author_name}</div>
+     </div>
+   `;
+
+   container.appendChild(card);
+ });
+}
+
+function renderChannelAlbums(channelName){
+ let container=document.getElementById("channelContent");
+ if(!container) return;
+ container.innerHTML="<p>Albums próximamente...</p>";
+}</button>
+ 
+ <div style="display:flex;align-items:center;gap:10px;margin:10px">
+   <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(channelName)}&background=ff3c3c&color=fff" style="width:60px;height:60px;border-radius:50%">
+   <h2>${channelName}</h2>
+ </div>
+
+ <div style="display:flex;gap:10px;margin:10px">
+   <button onclick="renderChannelVideos('${channelName}')">Videos</button>
+   <button onclick="renderChannelShorts('${channelName}')">Shorts</button>
+   <button onclick="renderChannelAlbums('${channelName}')">Albums</button>
+ </div>
+
+ <div class="container" id="channelContent"></div>
+ `;
+
+ renderChannelVideos(channelName);
+}
+
+function renderChannelVideos(channelName){
+ let container=document.getElementById("channelContent");
  container.innerHTML="";
 
  let vids = videosData.filter(v=>v.author_name===channelName);
