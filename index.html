@@ -1,169 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>ChickenGunTube</title>
+  <meta charset="UTF-8">
+  <title>Error 404 - CGTube</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0f0f0f;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
-<style>
-:root{
- --bg:#0f0f0f;
- --card:#1f1f1f;
- --text:white;
- --accent:#ff3c3c;
- --header:#202020;
- --input-bg:#2a2a2a;
-}
+    .error-code {
+      font-size: 90px;
+      color: #ff3d3d;
+      margin-bottom: 20px;
+    }
 
-body{margin:0;font-family:Arial;background:var(--bg);color:var(--text)}
-header{background:var(--header);padding:10px;display:flex;gap:10px;align-items:center}
-header img{height:60px}
-input{flex:1;padding:8px;border-radius:20px;border:none;background:var(--input-bg);color:var(--text)}
+    .container {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      max-width: 700px;
+      padding: 20px;
+    }
 
-.container{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;padding:15px}
-@media (max-width:800px){.container{grid-template-columns:1fr}}
+    .logo img {
+      width: 130px;
+      height: auto;
+    }
 
-.video-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer}
-.thumbnail{width:100%;aspect-ratio:16/9;object-fit:cover}
-.video-info{padding:10px}
-.channel{color:gray;font-size:0.9em;cursor:pointer}
+    .text {
+      text-align: left;
+    }
 
-iframe{width:100%;height:500px;border:none;border-radius:10px}
-button{background:var(--accent);border:none;padding:8px 12px;border-radius:10px;color:white}
+    .text h2 {
+      margin: 0 0 10px 0;
+    }
 
-</style>
+    .text p {
+      color: #ccc;
+      margin: 6px 0;
+      line-height: 1.5;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ff3d3d;
+      border: none;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    button:hover {
+      background-color: #e62e2e;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .text {
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<header>
-<img src="images/chickentube_logo.png">
-<input id="search" placeholder="Buscar..." oninput="render()">
-<button onclick="openSettings()">⚙️</button>
-</header>
+  
+  <div class="error-code">404</div>
 
-<div id="main"></div>
+  <div class="container">
+    
+    <
+    <div class="logo">
+      <img src="images/chickentube_logo.png" alt="Logo CGTube">
+    </div>
 
-<script>
-let videoLinks=[],videosData=[],order=[];
-let theme=localStorage.getItem("theme")||"dark";
+   
+    <div class="text">
+      <h2>CGTube no está disponible</h2>
+      <p>
+        El servicio no se encuentra disponible en este momento o ha sido interrumpido inesperadamente.
+      </p>
+      <p>
+        Por favor, espere mientras el equipo de desarrollo implementa una nueva versión
+        para restablecer el funcionamiento del sistema.
+      </p>
 
-function applyTheme(){
- if(theme==="light"){
-  document.documentElement.style.setProperty('--bg','#fff');
-  document.documentElement.style.setProperty('--card','#eee');
-  document.documentElement.style.setProperty('--text','#000');
-  document.documentElement.style.setProperty('--header','#fff');
-  document.documentElement.style.setProperty('--input-bg','#ddd');
- }
-}
+      <button onclick="location.reload()">Reintentar</button>
+    </div>
 
-function getID(url){
- return url.split("youtu.be/")[1].split("?")[0];
-}
-
-function shuffle(a){return a.sort(()=>Math.random()-0.5)}
-
-async function loadLinks(){
- let t=await (await fetch("./LinkVideo.html")).text();
- t=t.replace(/<[^>]*>/g,"");
- t.match(/"(https?:[^\"]+)"/g).forEach(x=>videoLinks.push(x.replace(/"/g,"")));
-}
-
-async function loadVideos(){
- videosData=[];
- videoLinks.forEach(link=>{
-  let id=getID(link);
-  videosData.push({id,title:"...",author_name:"..."});
-
-  fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-  .then(r=>r.json()).then(d=>{
-   let v=videosData.find(x=>x.id===id);
-   if(v){v.title=d.title;v.author_name=d.author_name;render();}
-  });
- });
- order=shuffle(videoLinks.map(getID));
-}
-
-function render(){
- let s=document.getElementById("search").value.toLowerCase();
- main.innerHTML='<div class="container"></div>';
- let c=main.firstChild;
-
- order.forEach(id=>{
-  let v=videosData.find(v=>v.id===id);
-  if(!v)return;
-  if(s && !(v.title.toLowerCase().includes(s)||v.author_name.toLowerCase().includes(s)))return;
-
-  let card=document.createElement("div");
-  card.className="video-card";
-  card.onclick=()=>openVideo(id);
-
-  card.innerHTML=`
-   <img class="thumbnail" src="https://img.youtube.com/vi/${id}/hqdefault.jpg">
-   <div class="video-info">
-     <div>${v.title}</div>
-     <div class="channel" onclick="event.stopPropagation();openChannel('${v.author_name}')">${v.author_name}</div>
-   </div>
-  `;
-
-  c.appendChild(card);
- });
-}
-
-function openVideo(id){
- let v=videosData.find(v=>v.id===id);
- main.innerHTML=`
- <button onclick="render()">⬅</button>
- <iframe src="https://www.youtube.com/embed/${id}"></iframe>
- <h3 onclick="openChannel('${v.author_name}')">${v.author_name}</h3>
- `;
-}
-
-function openChannel(name){
- main.innerHTML=`
- <button onclick="render()">⬅</button>
- <h2>${name}</h2>
- <div class="container" id="ch"></div>
- `;
-
- let c=document.getElementById("ch");
-
- videosData.filter(v=>v.author_name===name).forEach(v=>{
-  let card=document.createElement("div");
-  card.className="video-card";
-  card.onclick=()=>openVideo(v.id);
-
-  card.innerHTML=`
-   <img class="thumbnail" src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg">
-   <div class="video-info">
-     <div>${v.title}</div>
-     <div class="channel">${v.author_name}</div>
-   </div>
-  `;
-
-  c.appendChild(card);
- });
-
- if(!c.innerHTML) c.innerHTML="<p>No hay videos</p>";
-}
-
-function openSettings(){
- main.innerHTML=`
- <button onclick="render()">⬅</button>
- <h2>Configuración</h2>
- <button onclick="setTheme('dark')">Negro</button>
- <button onclick="setTheme('light')">Blanco</button>
- `;
-}
-
-function setTheme(t){theme=t;localStorage.setItem("theme",t);location.reload();}
-
-(async()=>{
- applyTheme();
- await loadLinks();
- await loadVideos();
- render();
-})();
-</script>
+  </div>
 
 </body>
 </html>
