@@ -7,11 +7,11 @@
 body {
   margin: 0;
   background: #0f0f0f;
-  color: white;
   font-family: Arial, sans-serif;
+  color: white;
 }
 .header {
-  padding: 20px 20px;
+  padding: 20px;
   background: #121212;
   display: flex;
   justify-content: center;
@@ -19,25 +19,13 @@ body {
   border-bottom: 1px solid #222;
 }
 .header .logo img {
-  height: 60px; /* Logo más grande */
+  height: 60px; /* Logo grande */
 }
 .videos {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
-}
-.card {
-  cursor: pointer;
-}
-.card img {
-  width: 100%;
-  border-radius: 10px;
-}
-.card .title {
-  margin-top: 8px;
-  font-weight: bold;
-  font-size: 14px;
 }
 </style>
 </head>
@@ -49,50 +37,28 @@ body {
   </div>
 </div>
 
-<div class="videos" id="videoContainer"></div>
+<div class="videos" id="videoContainer">
+  <!-- Los videos se mostrarán aquí solo después de que VideoSystem pase los datos -->
+</div>
 
 <script>
-// 🔹 Links de LinkVideo
-const videoLinks = [
-  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  "https://www.youtube.com/watch?v=3JZ_D3ELwOQ",
-  "https://www.youtube.com/watch?v=9bZkp7q19f0",
-  "https://youtu.be/_hdKjo5NR40",
-  "https://youtu.be/m3M-RwZebEk",
-  "https://youtu.be/fZbO_Tw-o3Q"
-];
-
-const container = document.getElementById("videoContainer");
-
-function crearTarjeta(url) {
-  let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
-  const div = document.createElement("div");
-  div.className = "card";
-
-  div.innerHTML = `
-    <img src="https://img.youtube.com/vi/${id}/0.jpg">
-    <div class="title">Cargando...</div>
-  `;
-
-  // Título real
-  fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
-    .then(res => res.json())
-    .then(data => {
-      div.querySelector(".title").textContent = data.title;
-    })
-    .catch(() => {
-      div.querySelector(".title").textContent = "Título no disponible";
+// 🔹 Recibir datos de VideoSystem (opcional)
+window.addEventListener("message", (event) => {
+  if (event.data.type === "videoData") {
+    const container = document.getElementById("videoContainer");
+    container.innerHTML = ""; // Limpiar si había algo
+    event.data.videos.forEach(v => {
+      const div = document.createElement("div");
+      div.style.marginBottom = "20px";
+      div.innerHTML = `
+        <img src="${v.thumbnail}" style="width:300px;border-radius:10px;">
+        <div style="font-weight:bold;margin-top:5px;">${v.title}</div>
+        <div style="color:#aaa;">${v.channel}</div>
+      `;
+      container.appendChild(div);
     });
-
-  div.onclick = () => {
-    // 🔹 Llamar VideoSystem y pasar link
-    window.location.href = "VideoSystem.html?url=" + encodeURIComponent(url);
-  };
-
-  container.appendChild(div);
-}
-
-videoLinks.forEach(crearTarjeta);
+  }
+});
 </script>
 
 </body>
