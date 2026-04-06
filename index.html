@@ -14,13 +14,20 @@ body {
   padding: 20px;
   background: #121212;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #222;
 }
 .header .logo img {
   height: 60px;
   cursor: pointer;
+}
+.search-bar {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  outline: none;
 }
 .videos {
   display: grid;
@@ -46,9 +53,8 @@ body {
 .card .channel {
   color: #aaa;
   font-size: 12px;
+  margin-top: 2px;
 }
-
-/* 🔹 Skeleton de carga */
 .skeleton {
   background: #222;
   border-radius: 10px;
@@ -69,12 +75,15 @@ body {
   <div class="logo">
     <img src="images/chickentube_logo.png" onclick="window.location.href='index.html'">
   </div>
+  <input type="text" placeholder="Buscar videos o canales..." class="search-bar" id="searchInput">
 </div>
 
 <div class="videos" id="videoContainer"></div>
 
 <script>
-// 🔹 Pedir los links de LinkVideo
+let todosVideos = []; // Para filtrar después
+
+// 🔹 Pedir links de LinkVideo
 async function obtenerLinks() {
   const res = await fetch("LinkVideo.html");
   const text = await res.text();
@@ -98,44 +107,69 @@ function shuffle(array) {
   return array;
 }
 
-// 🔹 Cargar videos
-async function cargarVideos() {
-  let videos = await obtenerLinks();
-  videos = shuffle(videos); // 🔹 Aleatorio
-  const container = document.getElementById("videoContainer");
+// 🔹 Crear tarjeta
+function crearTarjeta(video) {
+  const div = document.createElement("div");
+  div.className = "card";
+  div.innerHTML = `<div class="skeleton"></div>`;
 
-  for (let url of videos) {
-    // Skeleton
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `<div class="skeleton"></div>`;
-    container.appendChild(div);
+  let id = video.url.includes("watch?v=") ? video.url.split("watch?v=")[1].split("&")[0] : video.url.split("youtu.be/")[1];
 
-    let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
+  fetch(`https://www.youtube.com/oembed?url=${video.url}&format=json`)
+    .then(res => res.json())
+    .then(data => {
+      video.title = data.title;
+      video.channel = data.author_name;
+      div.innerHTML = `
+        <img src="https://img.youtube.com/vi/${id}/0.jpg">
+        <div class="title">${data.title}</div>
+        <div class="channel">${data.author_name}</div>
+      `;
+    })
+    .catch(() => {
+      video.title = "Video";
+      video.channel = "";
+      div.innerHTML = `
+        <img src="https://img.youtube.com/vi/${id}/0.jpg">
+        <div class="title">Video</div>
+        <div class="channel"></div>
+      `;
+    });
 
-    fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
-      .then(res => res.json())
-      .then(data => {
-        div.innerHTML = `
-          <img src="https://img.youtube.com/vi/${id}/0.jpg">
-          <div class="title">${data.title}</div>
-          <div class="channel">${data.author_name}</div>
-        `;
-      })
-      .catch(() => {
-        div.innerHTML = `
-          <img src="https://img.youtube.com/vi/${id}/0.jpg">
-          <div class="title">Video</div>
-          <div class="channel"></div>
-        `;
-      });
+  div.onclick = () => {
+    window.location.href = "VideoSystem.html?url=" + encodeURIComponent(video.url);
+  };
 
-    // Click para abrir VideoSystem
-    div.onclick = () => {
-      window.location.href = "VideoSystem.html?url=" + encodeURIComponent(url);
-    };
-  }
+  return div;
 }
+
+// 🔹 Cargar todos los videos
+async function cargarVideos() {
+  let links = await obtenerLinks();
+  links = shuffle(links);
+  todosVideos = links.map(url => ({url}));
+
+  mostrarVideos(todosVideos);
+}
+
+// 🔹 Mostrar videos filtrados
+function mostrarVideos(array) {
+  const container = document.getElementById("videoContainer");
+  container.innerHTML = "";
+  array.forEach(video => {
+    container.appendChild(crearTarjeta(video));
+  });
+}
+
+// 🔹 Filtrar según input
+document.getElementById("searchInput").addEventListener("input", e => {
+  const term = e.target.value.toLowerCase();
+  const filtrados = todosVideos.filter(v => 
+    (v.title && v.title.toLowerCase().includes(term)) ||
+    (v.channel && v.channel.toLowerCase().includes(term))
+  );
+  mostrarVideos(filtrados);
+});
 
 cargarVideos();
 </script>
