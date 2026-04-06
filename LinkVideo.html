@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>CGTube Links</title>
+</head>
 <body>
 
-#VIDEOS
-"https://youtu.be/_hdKjo5NR40",
+<script>
+  // 🔥 SOLO LINKS DE VIDEOS
+  const videos = [
+    "https://youtu.be/_hdKjo5NR40",
 "https://youtu.be/m3M-RwZebEk",
 "https://youtu.be/fZbO_Tw-o3Q",
 "https://youtu.be/tP-BqF_jtLA",
@@ -100,30 +106,33 @@
 "https://youtu.be/l-65Rbcckz4",
 "https://youtu.be/vY_Wme_0OMM",
 "https://youtu.be/ZjzfGUUAeik"
+  ];
 
-#SHORTS
-"https://youtube.com/shorts/ZarEZbchMm4",
-"https://youtube.com/shorts/QWijasdYtb0",
-"https://youtube.com/shorts/6s6gSnT-kXQ",
-"https://youtube.com/shorts/cszaisrd6dk",
-"https://youtube.com/shorts/Huz0-BijlaM",
-"https://youtube.com/shorts/Lx5B0Oo2NPs",
-"https://youtube.com/shorts/A-ws2_ermBE",
-"https://youtube.com/shorts/UTMTAGVAXtw",
-"https://youtube.com/shorts/pB4RzOzHSeQ",
-"https://youtube.com/shorts/sqHedLHc1WE",
-"https://youtube.com/shorts/0TBzqfkcbEM",
-"https://youtube.com/shorts/Fv3NPZgKXn0",
-"https://youtube.com/shorts/-qLxOJnYPEo",
-"https://youtube.com/shorts/NWXySdCQZTM",
-"https://youtube.com/shorts/suYT8szNh_w",
-"https://youtube.com/shorts/zOxF8M_VQ3Q",
-"https://youtube.com/shorts/V_RnVFJLVj4",
-"https://youtube.com/shorts/g83o8P9UaE0",
-"https://youtube.com/shorts/z-0yEfal20Y",
-"https://youtube.com/shorts/ij5PxuCbCaM",
-"https://youtube.com/shorts/X8zr8wrrZ50",
-"https://youtube.com/shorts/nXBBggGAaRs"
+  // 🔹 Tomar parámetro ?link= para reproducir
+  const params = new URLSearchParams(window.location.search);
+  const link = params.get("link");
+
+  if (link) {
+    // Redirigir al VideoSystem con el link
+    window.location.href = "VideoSystem.html?url=" + encodeURIComponent(link);
+  } else {
+    // Si no hay ?link=, mostrar la lista simple (opcional)
+    document.body.innerHTML = "<h2 style='color:white;font-family:Arial;'>Lista de videos:</h2>";
+    videos.forEach(v => {
+      const a = document.createElement("a");
+      a.href = "LinkVideo.html?link=" + encodeURIComponent(v);
+      a.textContent = v;
+      a.style.display = "block";
+      a.style.color = "cyan";
+      a.style.marginBottom = "8px";
+      document.body.appendChild(a);
+    });
+
+    document.body.style.background = "#0f0f0f";
+    document.body.style.fontFamily = "Arial";
+  }
+
+</script>
 
 </body>
 </html>
