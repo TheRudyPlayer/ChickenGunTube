@@ -8,17 +8,18 @@ body {
   margin: 0;
   background: #0f0f0f;
   color: white;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
 }
 .header {
-  padding: 15px 20px;
+  padding: 20px 20px;
   background: #121212;
   display: flex;
+  justify-content: center;
   align-items: center;
   border-bottom: 1px solid #222;
 }
 .header .logo img {
-  height: 35px;
+  height: 60px; /* Logo más grande */
 }
 .videos {
   display: grid;
@@ -63,19 +64,17 @@ const videoLinks = [
 
 const container = document.getElementById("videoContainer");
 
-// 🔹 Función para crear tarjeta
 function crearTarjeta(url) {
   let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
   const div = document.createElement("div");
   div.className = "card";
 
-  // Miniatura y título (temporal mientras carga oEmbed)
   div.innerHTML = `
     <img src="https://img.youtube.com/vi/${id}/0.jpg">
     <div class="title">Cargando...</div>
   `;
 
-  // Obtener título real con oEmbed
+  // Título real
   fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
     .then(res => res.json())
     .then(data => {
@@ -86,69 +85,14 @@ function crearTarjeta(url) {
     });
 
   div.onclick = () => {
-    // Cambiar la URL sin recargar (historia estilo YouTube)
-    history.pushState({}, "", "?link=" + encodeURIComponent(url));
-    mostrarVideo(url);
+    // 🔹 Llamar VideoSystem y pasar link
+    window.location.href = "VideoSystem.html?url=" + encodeURIComponent(url);
   };
 
   container.appendChild(div);
 }
 
-// 🔹 Crear todas las tarjetas
 videoLinks.forEach(crearTarjeta);
-
-// 🔹 Función para mostrar solo el video + creador
-function mostrarVideo(url) {
-  let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
-
-  // Limpiar todo y mostrar solo video
-  container.innerHTML = "";
-
-  // Video y canal
-  const videoDiv = document.createElement("div");
-  videoDiv.style.textAlign = "center";
-
-  const iframe = document.createElement("iframe");
-  iframe.src = "https://www.youtube.com/embed/" + id;
-  iframe.width = "90%";
-  iframe.height = "400";
-  iframe.style.border = "none";
-  iframe.style.borderRadius = "12px";
-
-  const titleEl = document.createElement("div");
-  titleEl.style.fontWeight = "bold";
-  titleEl.style.marginTop = "10px";
-  titleEl.style.fontSize = "18px";
-
-  const channelEl = document.createElement("div");
-  channelEl.style.color = "#aaa";
-  channelEl.style.marginTop = "5px";
-
-  // Obtener datos reales con oEmbed
-  fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
-    .then(res => res.json())
-    .then(data => {
-      titleEl.textContent = data.title;
-      channelEl.textContent = data.author_name;
-    })
-    .catch(() => {
-      titleEl.textContent = "Video";
-      channelEl.textContent = "";
-    });
-
-  videoDiv.appendChild(iframe);
-  videoDiv.appendChild(titleEl);
-  videoDiv.appendChild(channelEl);
-
-  container.appendChild(videoDiv);
-}
-
-// 🔹 Si entramos con ?link=... mostrar video automáticamente
-const params = new URLSearchParams(window.location.search);
-const linkParam = params.get("link");
-if (linkParam) {
-  mostrarVideo(linkParam);
-}
 </script>
 
 </body>
