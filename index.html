@@ -2,107 +2,101 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Error 404 - CGTube</title>
+  <title>CGTube</title>
+
   <style>
     body {
       margin: 0;
-      background-color: #0f0f0f;
+      background: #0f0f0f;
       color: white;
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
     }
 
-    .error-code {
-      font-size: 90px;
-      color: #ff3d3d;
-      margin-bottom: 20px;
-    }
-
-    .container {
+    /* HEADER */
+    .header {
+      padding: 15px 20px;
+      background: #121212;
+      border-bottom: 1px solid #222;
       display: flex;
       align-items: center;
-      gap: 30px;
-      max-width: 700px;
-      padding: 20px;
     }
 
     .logo img {
-      width: 130px;
-      height: auto;
+      height: 35px;
     }
 
-    .text {
-      text-align: left;
+    /* GRID VIDEOS */
+    .videos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+      padding: 20px;
     }
 
-    .text h2 {
-      margin: 0 0 10px 0;
-    }
-
-    .text p {
-      color: #ccc;
-      margin: 6px 0;
-      line-height: 1.5;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #ff3d3d;
-      border: none;
-      color: white;
-      font-size: 15px;
+    .card {
       cursor: pointer;
-      border-radius: 8px;
     }
 
-    button:hover {
-      background-color: #e62e2e;
+    .card img {
+      width: 100%;
+      border-radius: 10px;
     }
 
-    @media (max-width: 600px) {
-      .container {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .text {
-        text-align: center;
-      }
+    .title {
+      margin-top: 8px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
 
-  
-  <div class="error-code">404</div>
-
-  <div class="container">
-    
-    <
-    <div class="logo">
-      <img src="images/chickentube_logo.png" alt="Logo CGTube">
-    </div>
-
-   
-    <div class="text">
-      <h2>CGTube no está disponible</h2>
-      <p>
-        El servicio no se encuentra disponible en este momento o ha sido interrumpido inesperadamente.
-      </p>
-      <p>
-        Por favor, espere mientras el equipo de desarrollo implementa una nueva versión
-        para restablecer el funcionamiento del sistema.
-      </p>
-
-      <button onclick="location.reload()">Reintentar</button>
-    </div>
-
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <img src="images/chickentube_logo.png">
   </div>
+</div>
+
+<!-- CONTENEDOR DE VIDEOS -->
+<div class="videos" id="videoContainer"></div>
+
+<script>
+  // 🔹 PEDIR VIDEOS A LinkVideo.html
+  fetch("LinkVideo.html")
+    .then(res => res.text())
+    .then(text => {
+      // Extraer el array de links del script
+      const arrayMatch = text.match(/const videos = \[(.*?)\]/s);
+      let videos = [];
+      if (arrayMatch) {
+        videos = arrayMatch[1]
+          .split(",")
+          .map(v => v.trim().replace(/['"]/g, "")) // quitar comillas
+          .filter(v => v.length > 0);
+      }
+
+      const container = document.getElementById("videoContainer");
+
+      // Generar tarjetas
+      videos.forEach((v, i) => {
+        const id = v.includes("watch?v=") ? v.split("watch?v=")[1].split("&")[0] : v.split("youtu.be/")[1];
+
+        const div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+          <img src="https://img.youtube.com/vi/${id}/0.jpg">
+          <div class="title">Video ${i+1}</div>
+        `;
+
+        div.onclick = () => {
+          window.location.href = "LinkVideo.html?link=" + encodeURIComponent(v);
+        };
+
+        container.appendChild(div);
+      });
+    });
+</script>
 
 </body>
 </html>
