@@ -1,101 +1,154 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>CGTube</title>
-
-  <style>
-    body {
-      margin: 0;
-      background: #0f0f0f;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-
-    /* HEADER */
-    .header {
-      padding: 15px 20px;
-      background: #121212;
-      border-bottom: 1px solid #222;
-      display: flex;
-      align-items: center;
-    }
-
-    .logo img {
-      height: 35px;
-    }
-
-    /* GRID VIDEOS */
-    .videos {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 15px;
-      padding: 20px;
-    }
-
-    .card {
-      cursor: pointer;
-    }
-
-    .card img {
-      width: 100%;
-      border-radius: 10px;
-    }
-
-    .title {
-      margin-top: 8px;
-      font-size: 14px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>CGTube</title>
+<style>
+body {
+  margin: 0;
+  background: #0f0f0f;
+  color: white;
+  font-family: Arial;
+}
+.header {
+  padding: 15px 20px;
+  background: #121212;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #222;
+}
+.header .logo img {
+  height: 35px;
+}
+.videos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+  padding: 20px;
+}
+.card {
+  cursor: pointer;
+}
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+.card .title {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+</style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="logo">
     <img src="images/chickentube_logo.png">
   </div>
 </div>
 
-<!-- CONTENEDOR DE VIDEOS -->
 <div class="videos" id="videoContainer"></div>
 
 <script>
-  // 🔹 PEDIR VIDEOS A LinkVideo.html
-  fetch("LinkVideo.html")
-    .then(res => res.text())
-    .then(text => {
-      // Extraer el array de links del script
-      const arrayMatch = text.match(/const videos = \[(.*?)\]/s);
-      let videos = [];
-      if (arrayMatch) {
-        videos = arrayMatch[1]
-          .split(",")
-          .map(v => v.trim().replace(/['"]/g, "")) // quitar comillas
-          .filter(v => v.length > 0);
-      }
+// 🔹 Links de LinkVideo
+const videoLinks = [
+  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "https://www.youtube.com/watch?v=3JZ_D3ELwOQ",
+  "https://www.youtube.com/watch?v=9bZkp7q19f0",
+  "https://youtu.be/_hdKjo5NR40",
+  "https://youtu.be/m3M-RwZebEk",
+  "https://youtu.be/fZbO_Tw-o3Q"
+];
 
-      const container = document.getElementById("videoContainer");
+const container = document.getElementById("videoContainer");
 
-      // Generar tarjetas
-      videos.forEach((v, i) => {
-        const id = v.includes("watch?v=") ? v.split("watch?v=")[1].split("&")[0] : v.split("youtu.be/")[1];
+// 🔹 Función para crear tarjeta
+function crearTarjeta(url) {
+  let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
+  const div = document.createElement("div");
+  div.className = "card";
 
-        const div = document.createElement("div");
-        div.className = "card";
+  // Miniatura y título (temporal mientras carga oEmbed)
+  div.innerHTML = `
+    <img src="https://img.youtube.com/vi/${id}/0.jpg">
+    <div class="title">Cargando...</div>
+  `;
 
-        div.innerHTML = `
-          <img src="https://img.youtube.com/vi/${id}/0.jpg">
-          <div class="title">Video ${i+1}</div>
-        `;
-
-        div.onclick = () => {
-          window.location.href = "LinkVideo.html?link=" + encodeURIComponent(v);
-        };
-
-        container.appendChild(div);
-      });
+  // Obtener título real con oEmbed
+  fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
+    .then(res => res.json())
+    .then(data => {
+      div.querySelector(".title").textContent = data.title;
+    })
+    .catch(() => {
+      div.querySelector(".title").textContent = "Título no disponible";
     });
+
+  div.onclick = () => {
+    // Cambiar la URL sin recargar (historia estilo YouTube)
+    history.pushState({}, "", "?link=" + encodeURIComponent(url));
+    mostrarVideo(url);
+  };
+
+  container.appendChild(div);
+}
+
+// 🔹 Crear todas las tarjetas
+videoLinks.forEach(crearTarjeta);
+
+// 🔹 Función para mostrar solo el video + creador
+function mostrarVideo(url) {
+  let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
+
+  // Limpiar todo y mostrar solo video
+  container.innerHTML = "";
+
+  // Video y canal
+  const videoDiv = document.createElement("div");
+  videoDiv.style.textAlign = "center";
+
+  const iframe = document.createElement("iframe");
+  iframe.src = "https://www.youtube.com/embed/" + id;
+  iframe.width = "90%";
+  iframe.height = "400";
+  iframe.style.border = "none";
+  iframe.style.borderRadius = "12px";
+
+  const titleEl = document.createElement("div");
+  titleEl.style.fontWeight = "bold";
+  titleEl.style.marginTop = "10px";
+  titleEl.style.fontSize = "18px";
+
+  const channelEl = document.createElement("div");
+  channelEl.style.color = "#aaa";
+  channelEl.style.marginTop = "5px";
+
+  // Obtener datos reales con oEmbed
+  fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
+    .then(res => res.json())
+    .then(data => {
+      titleEl.textContent = data.title;
+      channelEl.textContent = data.author_name;
+    })
+    .catch(() => {
+      titleEl.textContent = "Video";
+      channelEl.textContent = "";
+    });
+
+  videoDiv.appendChild(iframe);
+  videoDiv.appendChild(titleEl);
+  videoDiv.appendChild(channelEl);
+
+  container.appendChild(videoDiv);
+}
+
+// 🔹 Si entramos con ?link=... mostrar video automáticamente
+const params = new URLSearchParams(window.location.search);
+const linkParam = params.get("link");
+if (linkParam) {
+  mostrarVideo(linkParam);
+}
 </script>
 
 </body>
