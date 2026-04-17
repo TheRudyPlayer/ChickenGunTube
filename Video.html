@@ -82,25 +82,41 @@ iframe {
 const params = new URLSearchParams(window.location.search);
 const url = params.get("url");
 
+// ❌ Si no hay URL → 404
 if (!url) {
-  document.body.innerHTML = "Error al cargar el video";
-} else {
-  let id = url.includes("watch?v=") ? url.split("watch?v=")[1].split("&")[0] : url.split("youtu.be/")[1];
-
-  const iframe = document.getElementById("player");
-  iframe.src = "https://www.youtube.com/embed/" + id;
-
-  fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("title").textContent = data.title;
-      document.getElementById("channel").textContent = data.author_name;
-    })
-    .catch(() => {
-      document.getElementById("title").textContent = "Video";
-      document.getElementById("channel").textContent = "";
-    });
+  window.location.href = "404.html";
 }
+
+// 🔹 Validar y obtener ID
+let id = "";
+
+if (url.includes("watch?v=")) {
+  id = url.split("watch?v=")[1].split("&")[0];
+} else if (url.includes("youtu.be/")) {
+  id = url.split("youtu.be/")[1];
+} else {
+  // ❌ Link inválido → 404
+  window.location.href = "404.html";
+}
+
+// 🎬 Cargar video
+document.getElementById("player").src = "https://www.youtube.com/embed/" + id;
+
+// 🔥 Obtener título + canal
+fetch(`https://www.youtube.com/oembed?url=${url}&format=json`)
+  .then(res => {
+    if (!res.ok) throw new Error();
+    return res.json();
+  })
+  .then(data => {
+    document.getElementById("title").textContent = data.title;
+    document.getElementById("channel").textContent = data.author_name;
+  })
+  .catch(() => {
+    // Video eliminado / error
+    window.location.href = "404.html";
+  });
+
 </script>
 
 </body>
