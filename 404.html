@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Error 404 - CGTube</title>
+  <title>Error 404</title>
   <style>
     body {
       margin: 0;
@@ -14,6 +14,7 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      overflow: hidden; /* Quita scroll */
     }
 
     .error-code {
@@ -49,8 +50,14 @@
       line-height: 1.5;
     }
 
-    button {
+    .buttons {
       margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
       padding: 10px 20px;
       background-color: #ff3d3d;
       border: none;
@@ -73,22 +80,26 @@
       .text {
         text-align: center;
       }
+
+      .buttons {
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Número de error arriba -->
+  <!-- Número de error -->
   <div class="error-code">404</div>
 
   <div class="container">
     
-    <!-- Logo real de CGTube -->
+    <!-- Logo -->
     <div class="logo">
       <img src="assets/logo.png" alt="Logo CGTube">
     </div>
 
-    <!-- Texto a la derecha -->
+    <!-- Texto -->
     <div class="text">
       <h2>CGTube no está disponible</h2>
       <p>
@@ -99,7 +110,17 @@
         para restablecer el funcionamiento del sistema.
       </p>
 
-      <button onclick="location.reload()">Reintentar</button>
+      <!-- BOTONES -->
+      <div class="buttons">
+        <button onclick="window.location.href='index.html'">
+          Página Principal
+        </button>
+
+        <button onclick="location.reload()">
+          Reintentar
+        </button>
+      </div>
+
     </div>
 
   </div>
