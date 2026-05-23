@@ -46,6 +46,7 @@ body{
 .sidebar{
     width:72px;
     background:var(--panel);
+
     border-right:1px solid var(--border);
 
     position:fixed;
@@ -74,10 +75,11 @@ body{
 }
 
 .logo img{
-    width:44px;
-    height:44px;
+    width:46px;
+    height:46px;
 
     object-fit:contain;
+
     display:block;
 }
 
@@ -157,13 +159,15 @@ body{
 }
 
 .brand img{
-    height:34px;
+    height:48px;
     width:auto;
 
     object-fit:contain;
 
     display:block;
 }
+
+/* SEARCH */
 
 .search{
     width:50%;
@@ -206,9 +210,20 @@ body{
 
     background:var(--card);
 
-    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    color:var(--text);
+    cursor:pointer;
+}
+
+.search button svg{
+    width:20px;
+    height:20px;
+
+    stroke:var(--text);
+    fill:none;
+    stroke-width:2;
 }
 
 /* CONTENT */
@@ -593,7 +608,14 @@ type="text"
 id="searchInput"
 placeholder="Buscar">
 
-<button>🔍</button>
+<button>
+
+<svg viewBox="0 0 24 24">
+<circle cx="11" cy="11" r="7"/>
+<path d="M20 20L17 17"/>
+</svg>
+
+</button>
 
 </div>
 
@@ -681,10 +703,28 @@ allow="autoplay">
 
 <script>
 
-/* LINKS DESDE LinkVideo.html */
+/* LINKS */
 
-const rawItems =
-JSON.parse(localStorage.getItem("CGTubeLinks")) || [];
+let rawItems =
+JSON.parse(localStorage.getItem("CGTubeLinks"));
+
+/* VIDEOS POR DEFECTO */
+
+if(!rawItems || rawItems.length === 0){
+
+rawItems = [
+
+"https://youtu.be/SB6t85igDaE",
+"https://youtu.be/ZgHNasdtFU0?si=i-VcblUec7xYB1YY"
+
+];
+
+localStorage.setItem(
+"CGTubeLinks",
+JSON.stringify(rawItems)
+);
+
+}
 
 let library = [];
 
@@ -699,27 +739,21 @@ const clean = url.trim();
 const parsed = new URL(clean);
 
 if(parsed.searchParams.get("v")){
-
 return parsed.searchParams.get("v");
-
 }
 
 if(clean.includes("/shorts/")){
-
 return clean
 .split("/shorts/")[1]
 .split("?")[0]
 .split("&")[0];
-
 }
 
 if(clean.includes("youtu.be/")){
-
 return clean
 .split("youtu.be/")[1]
 .split("?")[0]
 .split("&")[0];
-
 }
 
 }catch{}
@@ -736,7 +770,7 @@ return url.includes("/shorts/");
 
 }
 
-/* FETCH */
+/* FETCH VIDEO */
 
 async function fetchVideo(url){
 
@@ -763,17 +797,19 @@ const data = await res.json();
 title = data.title || title;
 channel = data.author_name || channel;
 
-}catch{}
+}catch(e){
+
+console.log(e);
+
+}
 
 return{
-
 id,
 title,
 channel,
 type,
 thumb:
 `https://img.youtube.com/vi/${id}/hqdefault.jpg`
-
 };
 
 }
@@ -789,9 +825,7 @@ for(const item of rawItems){
 const data = await fetchVideo(item);
 
 if(data){
-
 library.push(data);
-
 }
 
 }
@@ -995,7 +1029,6 @@ library.filter(v=>v.type==="short");
 if(shorts.length===0){
 
 alert("No hay shorts");
-
 return;
 
 }
