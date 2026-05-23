@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>CGTube</title>
 
 <style>
@@ -15,7 +16,6 @@
     --text:#f1f1f1;
     --sub:#aaaaaa;
     --border:#303030;
-    --accent:#ff0000;
 }
 
 body.light{
@@ -57,14 +57,14 @@ body{
     flex-direction:column;
     align-items:center;
 
-    padding-top:8px;
+    padding-top:10px;
 
     z-index:100;
 }
 
 .logo{
     width:100%;
-    height:56px;
+    height:60px;
 
     display:flex;
     align-items:center;
@@ -74,11 +74,10 @@ body{
 }
 
 .logo img{
-    width:42px;
-    height:42px;
+    width:44px;
+    height:44px;
 
     object-fit:contain;
-
     display:block;
 }
 
@@ -87,7 +86,7 @@ body{
     height:74px;
 
     border:none;
-    background:transparent;
+    background:none;
 
     color:var(--text);
 
@@ -98,11 +97,11 @@ body{
 
     gap:6px;
 
-    border-radius:10px;
+    border-radius:12px;
 
     cursor:pointer;
 
-    transition:background .15s;
+    transition:.15s;
 }
 
 .nav-btn:hover{
@@ -136,7 +135,6 @@ body{
 .topbar{
     position:sticky;
     top:0;
-    z-index:10;
 
     height:56px;
 
@@ -149,23 +147,22 @@ body{
     justify-content:space-between;
 
     padding:0 16px;
+
+    z-index:50;
 }
 
 .brand{
     display:flex;
     align-items:center;
-    gap:10px;
 }
 
 .brand img{
-    width:34px;
     height:34px;
+    width:auto;
 
     object-fit:contain;
-}
 
-.brand h1{
-    font-size:20px;
+    display:block;
 }
 
 .search{
@@ -210,15 +207,8 @@ body{
     background:var(--card);
 
     cursor:pointer;
-}
 
-.search svg{
-    width:20px;
-    height:20px;
-
-    stroke:var(--text);
-    fill:none;
-    stroke-width:2;
+    color:var(--text);
 }
 
 /* CONTENT */
@@ -232,32 +222,26 @@ body{
 }
 
 .section-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
     margin-bottom:18px;
 }
 
 .section-header h2{
-    font-size:20px;
-}
-
-.section-header p{
-    color:var(--sub);
-    font-size:13px;
+    font-size:22px;
 }
 
 /* GRID */
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+    grid-template-columns:
+    repeat(auto-fill,minmax(280px,1fr));
+
     gap:18px;
 }
 
 .shorts-grid{
-    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    grid-template-columns:
+    repeat(auto-fill,minmax(180px,1fr));
 }
 
 /* CARD */
@@ -266,16 +250,14 @@ body{
     cursor:pointer;
 }
 
-.card:hover .thumb{
-    transform:scale(1.01);
-}
-
 .thumb-wrap{
     overflow:hidden;
-    border-radius:12px;
-    background:#222;
+
+    border-radius:14px;
 
     position:relative;
+
+    background:#222;
 }
 
 .thumb{
@@ -286,6 +268,10 @@ body{
     background-position:center;
 
     transition:transform .2s;
+}
+
+.card:hover .thumb{
+    transform:scale(1.03);
 }
 
 .shorts-grid .thumb{
@@ -309,14 +295,15 @@ body{
 }
 
 .card h3{
-    margin:10px 0 4px;
+    margin-top:10px;
 
     font-size:15px;
     line-height:1.4;
-    font-weight:500;
 }
 
 .card p{
+    margin-top:4px;
+
     color:var(--sub);
 
     font-size:13px;
@@ -340,12 +327,12 @@ body{
 .player-top{
     height:60px;
 
+    border-bottom:1px solid var(--border);
+
     display:flex;
     align-items:center;
 
     padding:0 15px;
-
-    border-bottom:1px solid var(--border);
 }
 
 .back-btn{
@@ -376,7 +363,7 @@ body{
     display:grid;
     grid-template-columns:1fr 380px;
 
-    gap:25px;
+    gap:24px;
 
     padding:20px;
 }
@@ -385,11 +372,11 @@ body{
     width:100%;
     aspect-ratio:16/9;
 
-    background:#000;
-
-    border-radius:12px;
+    border-radius:14px;
 
     overflow:hidden;
+
+    background:black;
 }
 
 .player-box.short{
@@ -400,22 +387,20 @@ body{
 .player-box iframe{
     width:100%;
     height:100%;
-
     border:none;
 }
 
 .video-info{
-    margin-top:15px;
+    margin-top:14px;
 }
 
 .video-info h2{
     font-size:22px;
     line-height:1.4;
-
-    margin-bottom:8px;
 }
 
 .video-info p{
+    margin-top:6px;
     color:var(--sub);
 }
 
@@ -424,7 +409,7 @@ body{
 .recommended{
     display:flex;
     flex-direction:column;
-    gap:12px;
+    gap:14px;
 }
 
 .rec-card{
@@ -448,14 +433,15 @@ body{
 
 .rec-info h4{
     font-size:14px;
-    line-height:1.3;
-
-    margin-bottom:5px;
+    line-height:1.4;
 }
 
 .rec-info p{
-    color:var(--sub);
+    margin-top:4px;
+
     font-size:12px;
+
+    color:var(--sub);
 }
 
 /* SETTINGS */
@@ -463,27 +449,25 @@ body{
 .settings{
     position:fixed;
 
-    top:60px;
     left:72px;
+    top:60px;
 
-    width:260px;
+    width:240px;
 
     background:var(--bg);
 
     border:1px solid var(--border);
 
-    padding:15px;
+    padding:14px;
 
     display:none;
 
-    z-index:999;
+    z-index:200;
 }
 
 .settings button{
     width:100%;
     height:42px;
-
-    margin-bottom:10px;
 
     border:none;
 
@@ -492,6 +476,8 @@ body{
     color:var(--text);
 
     border-radius:10px;
+
+    margin-bottom:10px;
 
     cursor:pointer;
 }
@@ -520,10 +506,6 @@ body{
     width:100%;
 }
 
-.brand h1{
-    display:none;
-}
-
 }
 
 </style>
@@ -535,7 +517,7 @@ body{
 <div class="sidebar">
 
 <div class="logo">
-<img src="images/logo.png" alt="Logo">
+<img src="images/chickenguntube_weblogo.png">
 </div>
 
 <button class="nav-btn" onclick="showHome()">
@@ -557,17 +539,6 @@ body{
 </svg>
 
 <span>Shorts</span>
-
-</button>
-
-<button class="nav-btn" onclick="window.location.href='LinkVideo.html'">
-
-<svg viewBox="0 0 24 24">
-<path d="M12 5V19"/>
-<path d="M5 12H19"/>
-</svg>
-
-<span>Links</span>
 
 </button>
 
@@ -605,60 +576,51 @@ Short aleatorio
 
 <div class="main">
 
+<!-- TOPBAR -->
+
 <div class="topbar">
 
 <div class="brand">
 
-<img src="images/logo.png" alt="Logo">
-
-<h1>CGTube</h1>
+<img src="images/chickentube_logo.png">
 
 </div>
 
 <div class="search">
 
 <input
-id="searchInput"
 type="text"
+id="searchInput"
 placeholder="Buscar">
 
-<button>
-
-<svg viewBox="0 0 24 24">
-<circle cx="11" cy="11" r="7"/>
-<path d="M20 20L17 17"/>
-</svg>
-
-</button>
+<button>🔍</button>
 
 </div>
 
 </div>
+
+<!-- CONTENT -->
 
 <div class="content">
+
+<!-- VIDEOS -->
 
 <div class="section" id="videosSection">
 
 <div class="section-header">
-
 <h2>Videos</h2>
-
-<p id="videosCount">0 videos</p>
-
 </div>
 
 <div class="grid" id="videosGrid"></div>
 
 </div>
 
+<!-- SHORTS -->
+
 <div class="section" id="shortsSection">
 
 <div class="section-header">
-
 <h2>Shorts</h2>
-
-<p id="shortsCount">0 shorts</p>
-
 </div>
 
 <div class="grid shorts-grid" id="shortsGrid"></div>
@@ -719,27 +681,45 @@ allow="autoplay">
 
 <script>
 
+/* LINKS DESDE LinkVideo.html */
+
 const rawItems =
 JSON.parse(localStorage.getItem("CGTubeLinks")) || [];
 
 let library = [];
 
+/* EXTRAER ID */
+
 function getVideoId(url){
 
 try{
 
-const u = new URL(url);
+const clean = url.trim();
 
-if(u.searchParams.get("v")){
-return u.searchParams.get("v");
+const parsed = new URL(clean);
+
+if(parsed.searchParams.get("v")){
+
+return parsed.searchParams.get("v");
+
 }
 
-if(url.includes("/shorts/")){
-return url.split("/shorts/")[1].split("?")[0];
+if(clean.includes("/shorts/")){
+
+return clean
+.split("/shorts/")[1]
+.split("?")[0]
+.split("&")[0];
+
 }
 
-if(url.includes("youtu.be/")){
-return url.split("youtu.be/")[1].split("?")[0];
+if(clean.includes("youtu.be/")){
+
+return clean
+.split("youtu.be/")[1]
+.split("?")[0]
+.split("&")[0];
+
 }
 
 }catch{}
@@ -748,15 +728,24 @@ return null;
 
 }
 
+/* SHORT */
+
 function isShort(url){
+
 return url.includes("/shorts/");
+
 }
 
-async function fetchVideo(raw){
+/* FETCH */
 
-const id = getVideoId(raw);
+async function fetchVideo(url){
 
-const type = isShort(raw)
+const id = getVideoId(url);
+
+if(!id) return null;
+
+const type =
+isShort(url)
 ? "short"
 : "video";
 
@@ -777,14 +766,19 @@ channel = data.author_name || channel;
 }catch{}
 
 return{
+
 id,
 title,
 channel,
 type,
-thumb:`https://img.youtube.com/vi/${id}/hqdefault.jpg`
+thumb:
+`https://img.youtube.com/vi/${id}/hqdefault.jpg`
+
 };
 
 }
+
+/* LOAD */
 
 async function load(){
 
@@ -795,7 +789,9 @@ for(const item of rawItems){
 const data = await fetchVideo(item);
 
 if(data){
+
 library.push(data);
+
 }
 
 }
@@ -803,6 +799,8 @@ library.push(data);
 render();
 
 }
+
+/* RENDER */
 
 function render(){
 
@@ -816,49 +814,24 @@ videosGrid.innerHTML = "";
 shortsGrid.innerHTML = "";
 
 const videos =
-library.filter(v=>v.type === "video");
+library.filter(v=>v.type==="video");
 
 const shorts =
-library.filter(v=>v.type === "short");
+library.filter(v=>v.type==="short");
 
-
-document.getElementById("videosCount")
-.innerText = videos.length + " videos";
-
-
-document.getElementById("shortsCount")
-.innerText = shorts.length + " shorts";
+/* VIDEOS */
 
 videos.forEach(v=>{
 
-videosGrid.innerHTML += cardHTML(v);
-
-});
-
-shorts.forEach(v=>{
-
-shortsGrid.innerHTML += cardHTML(v);
-
-});
-
-}
-
-function cardHTML(v){
-
-return `
+videosGrid.innerHTML += `
 <div class="card"
 onclick="playVideo('${v.id}')">
 
 <div class="thumb-wrap">
 
-<div
-class="thumb"
+<div class="thumb"
 style="background-image:url('${v.thumb}')">
 </div>
-
-${v.type === "short"
-? `<div class="short-badge">SHORTS</div>`
-: ""}
 
 </div>
 
@@ -869,15 +842,47 @@ ${v.type === "short"
 </div>
 `;
 
+});
+
+/* SHORTS */
+
+shorts.forEach(v=>{
+
+shortsGrid.innerHTML += `
+<div class="card"
+onclick="playVideo('${v.id}')">
+
+<div class="thumb-wrap">
+
+<div class="thumb"
+style="background-image:url('${v.thumb}')">
+</div>
+
+<div class="short-badge">
+SHORTS
+</div>
+
+</div>
+
+<h3>${v.title}</h3>
+
+<p>${v.channel}</p>
+
+</div>
+`;
+
+});
+
 }
+
+/* PLAY */
 
 function playVideo(id){
 
 const item =
-library.find(v=>v.id === id);
+library.find(v=>v.id===id);
 
 if(!item) return;
-
 
 document.getElementById("playerScreen")
 .style.display = "block";
@@ -885,10 +890,9 @@ document.getElementById("playerScreen")
 const box =
 document.getElementById("playerBox");
 
-if(item.type === "short"){
+if(item.type==="short"){
 
 box.classList.add("short");
-
 
 document.getElementById("player").src =
 `https://www.youtube.com/embed/${item.id}?autoplay=1&loop=1`;
@@ -897,16 +901,13 @@ document.getElementById("player").src =
 
 box.classList.remove("short");
 
-
 document.getElementById("player").src =
 `https://www.youtube.com/embed/${item.id}?autoplay=1`;
 
 }
 
-
 document.getElementById("videoTitle")
 .innerText = item.title;
-
 
 document.getElementById("videoChannel")
 .innerText = item.channel;
@@ -915,16 +916,18 @@ loadRecommended(id);
 
 }
 
-function closePlayer(){
+/* CLOSE */
 
+function closePlayer(){
 
 document.getElementById("playerScreen")
 .style.display = "none";
 
-
 document.getElementById("player").src = "";
 
 }
+
+/* RECOMMENDED */
 
 function loadRecommended(current){
 
@@ -934,15 +937,14 @@ document.getElementById("recommended");
 rec.innerHTML = "";
 
 library
-.filter(v=>v.id !== current)
+.filter(v=>v.id!==current)
 .forEach(v=>{
 
 rec.innerHTML += `
 <div class="rec-card"
 onclick="playVideo('${v.id}')">
 
-<div
-class="rec-thumb"
+<div class="rec-thumb"
 style="background-image:url('${v.thumb}')">
 </div>
 
@@ -961,17 +963,21 @@ style="background-image:url('${v.thumb}')">
 
 }
 
+/* SETTINGS */
+
 function toggleSettings(){
 
 const s =
 document.getElementById("settings");
 
 s.style.display =
-s.style.display === "block"
+s.style.display==="block"
 ? "none"
 : "block";
 
 }
+
+/* THEME */
 
 function toggleTheme(){
 
@@ -979,14 +985,19 @@ document.body.classList.toggle("light");
 
 }
 
+/* RANDOM SHORT */
+
 function randomShort(){
 
 const shorts =
-library.filter(v=>v.type === "short");
+library.filter(v=>v.type==="short");
 
-if(shorts.length === 0){
+if(shorts.length===0){
+
 alert("No hay shorts");
+
 return;
+
 }
 
 const random =
@@ -996,28 +1007,31 @@ playVideo(random.id);
 
 }
 
+/* HOME */
+
 function showHome(){
 
 document.getElementById("videosSection")
 .style.display = "block";
 
-
 document.getElementById("shortsSection")
 .style.display = "block";
 
 }
+
+/* SHORTS */
 
 function showShorts(){
 
 document.getElementById("videosSection")
 .style.display = "none";
 
-
 document.getElementById("shortsSection")
 .style.display = "block";
 
 }
 
+/* SEARCH */
 
 document.getElementById("searchInput")
 .addEventListener("input", function(){
@@ -1041,6 +1055,8 @@ text.includes(value)
 });
 
 });
+
+/* START */
 
 window.addEventListener("load", load);
 
