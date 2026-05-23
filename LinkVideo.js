@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>CGTube Links</title>
-</head>
-<body>
-
-<script>
-
 /*
 ========================================
 CGTube Links
@@ -15,18 +5,15 @@ CGTube Links
 
 SOLO LINKS.
 SIN INTERFAZ.
+SIN HTML.
 
-Este archivo:
-- guarda links
-- index.html los leerá automáticamente
-
-NO MODIFICAR:
-"CGTubeLinks"
+index.html leerá automáticamente:
+window.CGTubeLinks
 
 ========================================
 */
 
-const CGTubeLinks = [
+window.CGTubeLinks = [
 
 /* VIDEOS */
 
@@ -134,44 +121,3 @@ const CGTubeLinks = [
 "https://youtu.be/oTUQcQTUY8g"
 
 ];
-
-/*
-========================================
-GUARDAR
-========================================
-*/
-
-localStorage.removeItem("CGTubeLinks");
-
-localStorage.setItem(
-"CGTubeLinks",
-JSON.stringify(CGTubeLinks)
-);
-
-/*
-========================================
-VERIFICACIÓN
-========================================
-*/
-
-console.log(
-"CGTube Links guardados:",
-CGTubeLinks.length
-);
-
-/*
-========================================
-IMPORTANTE
-========================================
-
-1. Abre ESTE archivo primero
-2. Después abre index.html
-3. Ambos deben estar en la misma carpeta/proyecto
-
-========================================
-*/
-
-</script>
-
-</body>
-</html>
