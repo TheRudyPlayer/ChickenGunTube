@@ -235,8 +235,12 @@ body{
     transform:scale(1.03);
 }
 
-.shorts-grid .thumb{
+.short-vertical .thumb{
     aspect-ratio:9/16;
+}
+
+.short-square .thumb{
+    aspect-ratio:1/1;
 }
 
 .short-badge{
@@ -317,7 +321,7 @@ body{
 }
 
 .player-box.short{
-    max-width:420px;
+    max-width:430px;
     aspect-ratio:9/16;
 }
 
@@ -400,8 +404,6 @@ body{
     cursor:pointer;
 }
 
-/* MOBILE */
-
 @media(max-width:1000px){
 
 .player-layout{
@@ -432,157 +434,157 @@ body{
 
 <div class="sidebar">
 
-    <div class="sidebar-logo">
-        <img src="images/chickenguntube_weblogo.png">
-    </div>
+<div class="sidebar-logo">
+<img src="images/chickenguntube_weblogo.png">
+</div>
 
-    <button class="nav-btn" onclick="showHome()">
+<button class="nav-btn" onclick="showHome()">
 
-        <svg viewBox="0 0 24 24">
-            <path d="M3 10L12 3L21 10"></path>
-            <path d="M5 9V20H19V9"></path>
-        </svg>
+<svg viewBox="0 0 24 24">
+<path d="M3 10L12 3L21 10"></path>
+<path d="M5 9V20H19V9"></path>
+</svg>
 
-        <span>Inicio</span>
+<span>Inicio</span>
 
-    </button>
+</button>
 
-    <button class="nav-btn" onclick="showShorts()">
+<button class="nav-btn" onclick="showShorts()">
 
-        <svg viewBox="0 0 24 24">
-            <path d="M8 5L16 9L8 13"></path>
-            <path d="M8 11L16 15L8 19"></path>
-        </svg>
+<svg viewBox="0 0 24 24">
+<path d="M8 5L16 9L8 13"></path>
+<path d="M8 11L16 15L8 19"></path>
+</svg>
 
-        <span>Shorts</span>
+<span>Shorts</span>
 
-    </button>
+</button>
 
-    <button class="nav-btn" onclick="toggleSettings()">
+<button class="nav-btn" onclick="toggleSettings()">
 
-        <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 2V5"></path>
-            <path d="M12 19V22"></path>
-            <path d="M2 12H5"></path>
-            <path d="M19 12H22"></path>
-        </svg>
+<svg viewBox="0 0 24 24">
+<circle cx="12" cy="12" r="3"></circle>
+<path d="M12 2V5"></path>
+<path d="M12 19V22"></path>
+<path d="M2 12H5"></path>
+<path d="M19 12H22"></path>
+</svg>
 
-        <span>Ajustes</span>
+<span>Ajustes</span>
 
-    </button>
+</button>
 
 </div>
 
 <div class="settings" id="settings">
 
-    <button onclick="toggleTheme()">
-        Cambiar tema
-    </button>
+<button onclick="toggleTheme()">
+Cambiar tema
+</button>
 
-    <button onclick="randomShort()">
-        Short aleatorio
-    </button>
+<button onclick="randomShort()">
+Short aleatorio
+</button>
 
 </div>
 
 <div class="main">
 
-    <div class="topbar">
+<div class="topbar">
 
-        <div class="brand">
-            <img src="images/chickentube_logo.png">
-        </div>
+<div class="brand">
+<img src="images/chickentube_logo.png">
+</div>
 
-        <div class="search">
+<div class="search">
 
-            <input
-            type="text"
-            id="searchInput"
-            placeholder="Buscar">
+<input
+type="text"
+id="searchInput"
+placeholder="Buscar">
 
-            <button>
+<button>
 
-                <svg viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="7"></circle>
-                    <path d="M20 20L17 17"></path>
-                </svg>
+<svg viewBox="0 0 24 24">
+<circle cx="11" cy="11" r="7"></circle>
+<path d="M20 20L17 17"></path>
+</svg>
 
-            </button>
+</button>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-    <div class="content">
+<div class="content">
 
-        <div class="section" id="videosSection">
+<div class="section" id="videosSection">
 
-            <div class="section-header">
-                <h2>Videos</h2>
-            </div>
+<div class="section-header">
+<h2>Videos</h2>
+</div>
 
-            <div class="grid" id="videosGrid"></div>
+<div class="grid" id="videosGrid"></div>
 
-        </div>
+</div>
 
-        <div class="section" id="shortsSection">
+<div class="section" id="shortsSection">
 
-            <div class="section-header">
-                <h2>Shorts</h2>
-            </div>
+<div class="section-header">
+<h2>Shorts</h2>
+</div>
 
-            <div class="grid shorts-grid" id="shortsGrid"></div>
+<div class="grid shorts-grid" id="shortsGrid"></div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
 </div>
 
 <div class="player-screen" id="playerScreen">
 
-    <div class="player-top">
+<div class="player-top">
 
-        <button class="back-btn" onclick="closePlayer()">
+<button class="back-btn" onclick="closePlayer()">
 
-            <svg viewBox="0 0 24 24">
-                <path d="M15 5L8 12L15 19"></path>
-            </svg>
+<svg viewBox="0 0 24 24">
+<path d="M15 5L8 12L15 19"></path>
+</svg>
 
-            Volver
+Volver
 
-        </button>
+</button>
 
-    </div>
+</div>
 
-    <div class="player-layout">
+<div class="player-layout">
 
-        <div>
+<div>
 
-            <div class="player-box" id="playerBox">
+<div class="player-box" id="playerBox">
 
-                <iframe
-                id="player"
-                allowfullscreen
-                allow="autoplay">
-                </iframe>
+<iframe
+id="player"
+allowfullscreen
+allow="autoplay">
+</iframe>
 
-            </div>
+</div>
 
-            <div class="video-info">
+<div class="video-info">
 
-                <h2 id="videoTitle"></h2>
+<h2 id="videoTitle"></h2>
 
-                <p id="videoChannel"></p>
+<p id="videoChannel"></p>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-        <div class="recommended" id="recommended"></div>
+<div class="recommended" id="recommended"></div>
 
-    </div>
+</div>
 
 </div>
 
@@ -638,6 +640,14 @@ return url
 
 }
 
+if(url.includes("watch?v=")){
+
+return url
+.split("watch?v=")[1]
+.split("&")[0];
+
+}
+
 return null;
 
 }
@@ -650,9 +660,44 @@ return url.includes("/shorts/");
 
 }
 
+/* FORMAT */
+
+function getShortFormat(id){
+
+return new Promise(resolve => {
+
+const img = new Image();
+
+img.onload = function(){
+
+if(img.height > img.width){
+
+resolve("vertical");
+
+}else{
+
+resolve("square");
+
+}
+
+};
+
+img.onerror = () => {
+
+resolve("vertical");
+
+};
+
+img.src =
+`https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+
+});
+
+}
+
 /* CREATE VIDEO */
 
-function createVideo(url){
+async function createVideo(url){
 
 const id = getVideoId(url);
 
@@ -663,10 +708,20 @@ isShort(url)
 ? "short"
 : "video";
 
+let shortFormat = "vertical";
+
+if(type === "short"){
+
+shortFormat =
+await getShortFormat(id);
+
+}
+
 const data = {
 
 id,
 type,
+shortFormat,
 
 title:"Video de YouTube",
 
@@ -703,13 +758,31 @@ updateCards();
 
 }
 
-/* RENDER CARD */
+/* RENDER */
 
 function renderCard(video){
 
 const card = document.createElement("div");
 
 card.className = "card";
+
+if(video.type === "short"){
+
+if(video.shortFormat === "vertical"){
+
+card.classList.add(
+"short-vertical"
+);
+
+}else{
+
+card.classList.add(
+"short-square"
+);
+
+}
+
+}
 
 card.dataset.id = video.id;
 
@@ -996,7 +1069,17 @@ text.includes(value)
 
 /* START */
 
-rawItems.forEach(createVideo);
+async function start(){
+
+for(const item of rawItems){
+
+await createVideo(item);
+
+}
+
+}
+
+start();
 
 </script>
 
