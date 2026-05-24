@@ -590,7 +590,7 @@ body{
 
 <script>
 
-const rawItems = window.CGTubeLinks || [];
+const rawItems = [...(window.CGTubeLinks || [])];
 
 const videosGrid =
 document.getElementById("videosGrid");
@@ -599,6 +599,26 @@ const shortsGrid =
 document.getElementById("shortsGrid");
 
 let library = [];
+
+/* RANDOM */
+
+function shuffleArray(array){
+
+for(let i = array.length - 1; i > 0; i--){
+
+const j =
+Math.floor(Math.random() * (i + 1));
+
+[array[i], array[j]] =
+[array[j], array[i]];
+
+}
+
+}
+
+shuffleArray(rawItems);
+
+/* VIDEO ID */
 
 function getVideoId(url){
 
@@ -622,11 +642,15 @@ return null;
 
 }
 
+/* SHORT */
+
 function isShort(url){
 
 return url.includes("/shorts/");
 
 }
+
+/* CREATE VIDEO */
 
 function createVideo(url){
 
@@ -679,6 +703,8 @@ updateCards();
 
 }
 
+/* RENDER CARD */
+
 function renderCard(video){
 
 const card = document.createElement("div");
@@ -728,6 +754,8 @@ videosGrid.appendChild(card);
 
 }
 
+/* UPDATE */
+
 function updateCards(){
 
 document
@@ -750,6 +778,8 @@ video.channel;
 });
 
 }
+
+/* PLAY */
 
 function playVideo(id){
 
@@ -796,6 +826,8 @@ loadRecommended(id);
 
 }
 
+/* CLOSE */
+
 function closePlayer(){
 
 document.getElementById(
@@ -808,6 +840,8 @@ document.getElementById(
 
 }
 
+/* RECOMMENDED */
+
 function loadRecommended(current){
 
 const recommended =
@@ -817,8 +851,12 @@ document.getElementById(
 
 recommended.innerHTML = "";
 
-library
-.filter(v => v.id !== current)
+const recommendedVideos =
+library.filter(v => v.id !== current);
+
+shuffleArray(recommendedVideos);
+
+recommendedVideos
 .slice(0,12)
 .forEach(video => {
 
@@ -852,6 +890,8 @@ background-image:url('${video.thumb}')
 
 }
 
+/* SETTINGS */
+
 function toggleSettings(){
 
 const settings =
@@ -867,6 +907,8 @@ settings.style.display === "block"
 
 }
 
+/* THEME */
+
 function toggleTheme(){
 
 document.body.classList.toggle(
@@ -874,6 +916,8 @@ document.body.classList.toggle(
 );
 
 }
+
+/* RANDOM SHORT */
 
 function randomShort(){
 
@@ -899,6 +943,8 @@ playVideo(random.id);
 
 }
 
+/* SECTIONS */
+
 function showHome(){
 
 document.getElementById(
@@ -923,6 +969,8 @@ document.getElementById(
 
 }
 
+/* SEARCH */
+
 document
 .getElementById("searchInput")
 .addEventListener("input", function(){
@@ -945,6 +993,8 @@ text.includes(value)
 });
 
 });
+
+/* START */
 
 rawItems.forEach(createVideo);
 
