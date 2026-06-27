@@ -1,1 +1,1085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CGTube</title>
 
+<style>
+
+:root{
+    --bg:#0f0f0f;
+    --panel:#0f0f0f;
+    --card:#181818;
+    --hover:#272727;
+    --text:#f1f1f1;
+    --sub:#aaaaaa;
+    --border:#303030;
+}
+
+body.light{
+    --bg:#ffffff;
+    --panel:#ffffff;
+    --card:#ffffff;
+    --hover:#f2f2f2;
+    --text:#111111;
+    --sub:#606060;
+    --border:#dddddd;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial, Helvetica, sans-serif;
+    overflow-x:hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:72px;
+    height:100vh;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    z-index:100;
+}
+
+.sidebar-logo{
+    width:100%;
+    height:70px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.sidebar-logo img{
+    width:48px;
+    height:48px;
+    object-fit:contain;
+}
+
+.nav-btn{
+    width:64px;
+    height:74px;
+    border:none;
+    background:none;
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.nav-btn:hover{
+    background:var(--hover);
+}
+
+.nav-btn svg{
+    width:24px;
+    height:24px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+.nav-btn span{
+    font-size:10px;
+}
+
+/* MAIN */
+
+.main{
+    margin-left:72px;
+    min-height:100vh;
+}
+
+/* TOPBAR */
+
+.topbar{
+    position:sticky;
+    top:0;
+    height:56px;
+    background:var(--bg);
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 16px;
+    z-index:50;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+}
+
+.brand img{
+    height:54px;
+    object-fit:contain;
+}
+
+/* SEARCH */
+
+.search{
+    width:50%;
+    max-width:650px;
+    display:flex;
+    align-items:center;
+    border:1px solid var(--border);
+    border-radius:999px;
+    overflow:hidden;
+    background:var(--bg);
+}
+
+.search input{
+    flex:1;
+    height:40px;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:var(--text);
+    padding:0 14px;
+    font-size:15px;
+}
+
+.search button{
+    width:60px;
+    height:40px;
+    border:none;
+    border-left:1px solid var(--border);
+    background:var(--card);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+}
+
+.search button svg{
+    width:20px;
+    height:20px;
+    stroke:var(--text);
+    fill:none;
+    stroke-width:2;
+}
+
+/* CONTENT */
+
+.content{
+    padding:20px;
+}
+
+.section{
+    margin-bottom:40px;
+}
+
+.section-header{
+    margin-bottom:18px;
+}
+
+.section-header h2{
+    font-size:22px;
+}
+
+/* GRID */
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:18px;
+}
+
+.shorts-grid{
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+}
+
+/* CARD */
+
+.card{
+    cursor:pointer;
+}
+
+.thumb-wrap{
+    overflow:hidden;
+    border-radius:14px;
+    position:relative;
+    background:#222;
+}
+
+.thumb{
+    width:100%;
+    aspect-ratio:16/9;
+    background-size:cover;
+    background-position:center;
+    transition:transform .2s;
+}
+
+.card:hover .thumb{
+    transform:scale(1.03);
+}
+
+.short-vertical .thumb{
+    aspect-ratio:9/16;
+}
+
+.short-square .thumb{
+    aspect-ratio:1/1;
+}
+
+.short-badge{
+    position:absolute;
+    top:8px;
+    left:8px;
+    background:red;
+    color:white;
+    font-size:10px;
+    font-weight:bold;
+    padding:4px 7px;
+    border-radius:999px;
+}
+
+.card h3{
+    margin-top:10px;
+    font-size:15px;
+    line-height:1.4;
+}
+
+.card p{
+    margin-top:4px;
+    color:var(--sub);
+    font-size:13px;
+}
+
+/* PLAYER */
+
+.player-screen{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:var(--bg);
+    z-index:1000;
+    overflow-y:auto;
+}
+
+.player-top{
+    height:60px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    padding:0 15px;
+}
+
+.back-btn{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:none;
+    border:none;
+    color:var(--text);
+    cursor:pointer;
+    font-size:15px;
+}
+
+.back-btn svg{
+    width:22px;
+    height:22px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:2;
+}
+
+.player-layout{
+    display:grid;
+    grid-template-columns:1fr 380px;
+    gap:24px;
+    padding:20px;
+}
+
+.player-box{
+    width:100%;
+    aspect-ratio:16/9;
+    background:black;
+    border-radius:14px;
+    overflow:hidden;
+}
+
+.player-box.short{
+    max-width:430px;
+    aspect-ratio:9/16;
+}
+
+.player-box iframe{
+    width:100%;
+    height:100%;
+    border:none;
+}
+
+.video-info{
+    margin-top:14px;
+}
+
+.video-info h2{
+    font-size:22px;
+    line-height:1.4;
+}
+
+.video-info p{
+    margin-top:6px;
+    color:var(--sub);
+}
+
+/* RECOMMENDED */
+
+.recommended{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.rec-card{
+    display:flex;
+    gap:10px;
+    cursor:pointer;
+}
+
+.rec-thumb{
+    width:168px;
+    aspect-ratio:16/9;
+    border-radius:10px;
+    background-size:cover;
+    background-position:center;
+    flex-shrink:0;
+}
+
+.rec-info h4{
+    font-size:14px;
+    line-height:1.4;
+}
+
+.rec-info p{
+    margin-top:4px;
+    font-size:12px;
+    color:var(--sub);
+}
+
+/* SETTINGS */
+
+.settings{
+    position:fixed;
+    left:72px;
+    top:60px;
+    width:240px;
+    background:var(--bg);
+    border:1px solid var(--border);
+    padding:14px;
+    display:none;
+    z-index:200;
+}
+
+.settings button{
+    width:100%;
+    height:42px;
+    border:none;
+    background:var(--card);
+    color:var(--text);
+    border-radius:10px;
+    margin-bottom:10px;
+    cursor:pointer;
+}
+
+@media(max-width:1000px){
+
+.player-layout{
+    grid-template-columns:1fr;
+}
+
+}
+
+@media(max-width:700px){
+
+.grid{
+    grid-template-columns:1fr;
+}
+
+.shorts-grid{
+    grid-template-columns:repeat(2,1fr);
+}
+
+.search{
+    width:100%;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+
+<div class="sidebar-logo">
+<img src="images/chickenguntube_weblogo.png">
+</div>
+
+<button class="nav-btn" onclick="showHome()">
+
+<svg viewBox="0 0 24 24">
+<path d="M3 10L12 3L21 10"></path>
+<path d="M5 9V20H19V9"></path>
+</svg>
+
+<span>Inicio</span>
+
+</button>
+
+<button class="nav-btn" onclick="showShorts()">
+
+<svg viewBox="0 0 24 24">
+<path d="M8 5L16 9L8 13"></path>
+<path d="M8 11L16 15L8 19"></path>
+</svg>
+
+<span>Shorts</span>
+
+</button>
+
+<button class="nav-btn" onclick="toggleSettings()">
+
+<svg viewBox="0 0 24 24">
+<circle cx="12" cy="12" r="3"></circle>
+<path d="M12 2V5"></path>
+<path d="M12 19V22"></path>
+<path d="M2 12H5"></path>
+<path d="M19 12H22"></path>
+</svg>
+
+<span>Ajustes</span>
+
+</button>
+
+</div>
+
+<div class="settings" id="settings">
+
+<button onclick="toggleTheme()">
+Cambiar tema
+</button>
+
+<button onclick="randomShort()">
+Short aleatorio
+</button>
+
+</div>
+
+<div class="main">
+
+<div class="topbar">
+
+<div class="brand">
+<img src="images/chickentube_logo.png">
+</div>
+
+<div class="search">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Buscar">
+
+<button>
+
+<svg viewBox="0 0 24 24">
+<circle cx="11" cy="11" r="7"></circle>
+<path d="M20 20L17 17"></path>
+</svg>
+
+</button>
+
+</div>
+
+</div>
+
+<div class="content">
+
+<div class="section" id="videosSection">
+
+<div class="section-header">
+<h2>Videos</h2>
+</div>
+
+<div class="grid" id="videosGrid"></div>
+
+</div>
+
+<div class="section" id="shortsSection">
+
+<div class="section-header">
+<h2>Shorts</h2>
+</div>
+
+<div class="grid shorts-grid" id="shortsGrid"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="player-screen" id="playerScreen">
+
+<div class="player-top">
+
+<button class="back-btn" onclick="closePlayer()">
+
+<svg viewBox="0 0 24 24">
+<path d="M15 5L8 12L15 19"></path>
+</svg>
+
+Volver
+
+</button>
+
+</div>
+
+<div class="player-layout">
+
+<div>
+
+<div class="player-box" id="playerBox">
+
+<iframe
+id="player"
+allowfullscreen
+allow="autoplay">
+</iframe>
+
+</div>
+
+<div class="video-info">
+
+<h2 id="videoTitle"></h2>
+
+<p id="videoChannel"></p>
+
+</div>
+
+</div>
+
+<div class="recommended" id="recommended"></div>
+
+</div>
+
+</div>
+
+<script src="LinkVideo.js"></script>
+
+<script>
+
+const rawItems = [...(window.CGTubeLinks || [])];
+
+const videosGrid =
+document.getElementById("videosGrid");
+
+const shortsGrid =
+document.getElementById("shortsGrid");
+
+let library = [];
+
+/* RANDOM */
+
+function shuffleArray(array){
+
+for(let i = array.length - 1; i > 0; i--){
+
+const j =
+Math.floor(Math.random() * (i + 1));
+
+[array[i], array[j]] =
+[array[j], array[i]];
+
+}
+
+}
+
+shuffleArray(rawItems);
+
+/* VIDEO ID */
+
+function getVideoId(url){
+
+if(url.includes("youtu.be/")){
+
+return url
+.split("youtu.be/")[1]
+.split("?")[0];
+
+}
+
+if(url.includes("/shorts/")){
+
+return url
+.split("/shorts/")[1]
+.split("?")[0];
+
+}
+
+if(url.includes("watch?v=")){
+
+return url
+.split("watch?v=")[1]
+.split("&")[0];
+
+}
+
+return null;
+
+}
+
+/* SHORT */
+
+function isShort(url){
+
+return url.includes("/shorts/");
+
+}
+
+/* FORMAT */
+
+function getShortFormat(id){
+
+return new Promise(resolve => {
+
+const img = new Image();
+
+img.onload = function(){
+
+if(img.height > img.width){
+
+resolve("vertical");
+
+}else{
+
+resolve("square");
+
+}
+
+};
+
+img.onerror = () => {
+
+resolve("vertical");
+
+};
+
+img.src =
+`https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+
+});
+
+}
+
+/* CREATE VIDEO */
+
+async function createVideo(url){
+
+const id = getVideoId(url);
+
+if(!id) return;
+
+const type =
+isShort(url)
+? "short"
+: "video";
+
+let shortFormat = "vertical";
+
+if(type === "short"){
+
+shortFormat =
+await getShortFormat(id);
+
+}
+
+const data = {
+
+id,
+type,
+shortFormat,
+
+title:"Video de YouTube",
+
+channel:"Canal de YouTube",
+
+thumb:
+`https://img.youtube.com/vi/${id}/hqdefault.jpg`
+
+};
+
+library.push(data);
+
+renderCard(data);
+
+fetch(
+`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`
+)
+
+.then(res => res.json())
+
+.then(info => {
+
+data.title =
+info.title || data.title;
+
+data.channel =
+info.author_name || data.channel;
+
+updateCards();
+
+})
+
+.catch(() => {});
+
+}
+
+/* RENDER */
+
+function renderCard(video){
+
+const card = document.createElement("div");
+
+card.className = "card";
+
+if(video.type === "short"){
+
+if(video.shortFormat === "vertical"){
+
+card.classList.add(
+"short-vertical"
+);
+
+}else{
+
+card.classList.add(
+"short-square"
+);
+
+}
+
+}
+
+card.dataset.id = video.id;
+
+card.innerHTML = `
+
+<div class="thumb-wrap">
+
+<div
+class="thumb"
+style="
+background-image:url('${video.thumb}')
+">
+</div>
+
+${video.type === "short"
+? `<div class="short-badge">SHORTS</div>`
+: ""}
+
+</div>
+
+<h3>${video.title}</h3>
+
+<p>${video.channel}</p>
+
+`;
+
+card.onclick = () => {
+    location.href = `watch?v=${video.id}`;
+};
+
+if(video.type === "short"){
+
+shortsGrid.appendChild(card);
+
+}else{
+
+videosGrid.appendChild(card);
+
+}
+
+}
+
+/* UPDATE */
+
+function updateCards(){
+
+document
+.querySelectorAll(".card")
+.forEach(card => {
+
+const id = card.dataset.id;
+
+const video =
+library.find(v => v.id === id);
+
+if(!video) return;
+
+card.querySelector("h3").innerText =
+video.title;
+
+card.querySelector("p").innerText =
+video.channel;
+
+});
+
+}
+
+/* PLAY */
+
+function playVideo(id){
+
+const item =
+library.find(v => v.id === id);
+
+if(!item) return;
+
+document.getElementById(
+"playerScreen"
+).style.display = "block";
+
+document.getElementById(
+"player"
+).src =
+`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+
+document.getElementById(
+"videoTitle"
+).innerText =
+item.title;
+
+document.getElementById(
+"videoChannel"
+).innerText =
+item.channel;
+
+const playerBox =
+document.getElementById(
+"playerBox"
+);
+
+if(item.type === "short"){
+
+playerBox.classList.add("short");
+
+}else{
+
+playerBox.classList.remove("short");
+
+}
+
+loadRecommended(id);
+
+}
+
+/* CLOSE */
+
+function closePlayer(){
+
+document.getElementById(
+"playerScreen"
+).style.display = "none";
+
+document.getElementById(
+"player"
+).src = "";
+
+}
+
+/* RECOMMENDED */
+
+function loadRecommended(current){
+
+const recommended =
+document.getElementById(
+"recommended"
+);
+
+recommended.innerHTML = "";
+
+const recommendedVideos =
+library.filter(v => v.id !== current);
+
+shuffleArray(recommendedVideos);
+
+recommendedVideos
+.slice(0,12)
+.forEach(video => {
+
+recommended.innerHTML += `
+
+<div
+class="rec-card"
+onclick="playVideo('${video.id}')"
+>
+
+<div
+class="rec-thumb"
+style="
+background-image:url('${video.thumb}')
+">
+</div>
+
+<div class="rec-info">
+
+<h4>${video.title}</h4>
+
+<p>${video.channel}</p>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+/* SETTINGS */
+
+function toggleSettings(){
+
+const settings =
+document.getElementById(
+"settings"
+);
+
+settings.style.display =
+
+settings.style.display === "block"
+? "none"
+: "block";
+
+}
+
+/* THEME */
+
+function toggleTheme(){
+
+document.body.classList.toggle(
+"light"
+);
+
+}
+
+/* RANDOM SHORT */
+
+function randomShort(){
+
+const shorts =
+library.filter(v => v.type === "short");
+
+if(!shorts.length){
+
+alert("No hay shorts");
+
+return;
+
+}
+
+const random =
+shorts[
+Math.floor(
+Math.random() * shorts.length
+)
+];
+
+playVideo(random.id);
+
+}
+
+/* SECTIONS */
+
+function showHome(){
+
+document.getElementById(
+"videosSection"
+).style.display = "block";
+
+document.getElementById(
+"shortsSection"
+).style.display = "block";
+
+}
+
+function showShorts(){
+
+document.getElementById(
+"videosSection"
+).style.display = "none";
+
+document.getElementById(
+"shortsSection"
+).style.display = "block";
+
+}
+
+/* SEARCH */
+
+document
+.getElementById("searchInput")
+.addEventListener("input", function(){
+
+const value =
+this.value.toLowerCase();
+
+document
+.querySelectorAll(".card")
+.forEach(card => {
+
+const text =
+card.innerText.toLowerCase();
+
+card.style.display =
+text.includes(value)
+? "block"
+: "none";
+
+});
+
+});
+
+/* START */
+
+async function start(){
+
+for(const item of rawItems){
+
+await createVideo(item);
+
+}
+
+}
+
+start();
+
+</script>
+
+</body>
+  </html>
