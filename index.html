@@ -810,9 +810,7 @@ ${video.type === "short"
 `;
 
 card.onclick = () => {
-
-playVideo(video.id);
-
+    location.href = `watch?v=${video.id}`;
 };
 
 if(video.type === "short"){
