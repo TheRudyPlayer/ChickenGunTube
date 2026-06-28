@@ -699,10 +699,15 @@ fetch(
 .then(info => {
 
 data.title = info.title || "Video de YouTube";
+data.channel = info.author_name || "Canal de YouTube";
 
-if(document.getElementById("videoTitle").textContent === "Cargando..."){
+const current = new URLSearchParams(location.search).get("v");
+
+if(current === data.id){
     document.getElementById("videoTitle").textContent = data.title;
 }
+
+loadRecommended(current);
 
 })
 .catch(() => {});
