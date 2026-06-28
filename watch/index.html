@@ -752,29 +752,51 @@ fetch(
 
 /* PLAY */
 
-function playVideo(id){
+async function playVideo(id){
 
-const item = library.find(v => v.id === id);
-if(!item) return;
-
+/* VIDEO EMBED */
 document.getElementById("player").src =
 `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
 
+/* loading UI */
+document.getElementById("videoTitle").innerText = "Cargando...";
+document.getElementById("videoChannel").innerText = "Cargando...";
+document.getElementById("channelIcon").src = "./images/default_channel.png";
+
+try {
+
+const res = await fetch(
+`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`
+);
+
+const info = await res.json();
+
 document.getElementById("videoTitle").innerText =
-item.title || "Cargando...";
+info.title || "Sin título";
 
 document.getElementById("videoChannel").innerText =
-item.channel || "Canal de YouTube";
+info.author_name || "Canal desconocido";
 
-document.getElementById("channelIcon").src =
-item.channelIcon || "./images/default_channel.png";
+const icon =
+info.author_url
+? `https://www.google.com/s2/favicons?sz=128&domain=${new URL(info.author_url).hostname}`
+: "./images/default_channel.png";
+
+document.getElementById("channelIcon").src = icon;
+
+} catch (e) {
+
+document.getElementById("videoTitle").innerText = "Error cargando video";
+document.getElementById("videoChannel").innerText = "Desconocido";
+
+}
 
 const playerBox = document.getElementById("playerBox");
 
-if(item.type === "short"){
-    playerBox.classList.add("short");
+if(library.find(v => v.id === id)?.type === "short"){
+playerBox.classList.add("short");
 }else{
-    playerBox.classList.remove("short");
+playerBox.classList.remove("short");
 }
 
 loadRecommended(id);
