@@ -556,6 +556,12 @@ Cargando...
 
 <script>
 
+const savedTheme = localStorage.getItem("CGTubeTheme");
+
+if(savedTheme === "light"){
+    document.body.classList.add("light");
+}
+
 const rawItems = [...(window.CGTubeLinks || [])];
 
 let library = [];
@@ -900,12 +906,6 @@ text.includes(value)
 });
 
 });
-
-    const savedTheme = localStorage.getItem("CGTubeTheme");
-
-if(savedTheme === "light"){
-    document.body.classList.add("light");
-}
 
 /* START */
 
