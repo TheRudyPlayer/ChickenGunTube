@@ -754,43 +754,32 @@ fetch(
 
 function playVideo(id){
 
-const item =
-library.find(v => v.id === id);
-
+const item = library.find(v => v.id === id);
 if(!item) return;
 
-document.getElementById(
-"player"
-).src =
+document.getElementById("player").src =
 `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
 
-document.getElementById(
-"videoTitle"
-).innerText =
-"Cargando...";
+document.getElementById("videoTitle").innerText =
+item.title || "Cargando...";
 
-document.getElementById("videoChannel").innerText = item.channel;
-document.getElementById("channelIcon").src = item.channelIcon;
+document.getElementById("videoChannel").innerText =
+item.channel || "Canal de YouTube";
 
-const playerBox =
-document.getElementById(
-"playerBox"
-);
+document.getElementById("channelIcon").src =
+item.channelIcon || "./images/default_channel.png";
+
+const playerBox = document.getElementById("playerBox");
 
 if(item.type === "short"){
-
-playerBox.classList.add("short");
-
+    playerBox.classList.add("short");
 }else{
-
-playerBox.classList.remove("short");
-
+    playerBox.classList.remove("short");
 }
 
 loadRecommended(id);
 
-    history.replaceState({}, "", `?v=${id}`);
-
+history.replaceState({}, "", `?v=${id}`);
 }
 
 /* CLOSE */
