@@ -402,6 +402,27 @@ body{
     border-radius:10px;
     margin-bottom:10px;
     cursor:pointer;
+
+}
+
+.channel-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+}
+
+.channel-box img{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    object-fit:cover;
+    background:var(--card);
+}
+
+.channel-box h3{
+    font-size:14px;
+    color:var(--sub);
 }
 
 @media(max-width:1000px){
@@ -534,9 +555,14 @@ allow="autoplay">
 
 <div class="video-info">
 
-<h2 id="videoTitle">
-Cargando...
-</h2>
+<h2 id="videoTitle">Cargando...</h2>
+
+<div class="channel-box">
+    <img id="videoChannelIcon">
+    <div>
+        <h3 id="videoChannel"></h3>
+    </div>
+</div>
 
 </div>
 
