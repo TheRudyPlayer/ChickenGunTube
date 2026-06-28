@@ -707,100 +707,6 @@ if(document.getElementById("videoTitle").textContent === "Cargando..."){
 })
 .catch(() => {});
 
-.catch(() => {});
-
-}
-
-/* RENDER */
-
-function renderCard(video){
-
-const card = document.createElement("div");
-
-card.className = "card";
-
-if(video.type === "short"){
-
-if(video.shortFormat === "vertical"){
-
-card.classList.add(
-"short-vertical"
-);
-
-}else{
-
-card.classList.add(
-"short-square"
-);
-
-}
-
-}
-
-card.dataset.id = video.id;
-
-card.innerHTML = `
-
-<div class="thumb-wrap">
-
-<div
-class="thumb"
-style="
-background-image:url('${video.thumb}')
-">
-</div>
-
-${video.type === "short"
-? `<div class="short-badge">SHORTS</div>`
-: ""}
-
-</div>
-
-<h3>${video.title}</h3>
-
-<p>${video.channel}</p>
-
-`;
-
-card.onclick = () => {
-    location.href = `watch?v=${video.id}`;
-};
-
-if(video.type === "short"){
-
-shortsGrid.appendChild(card);
-
-}else{
-
-videosGrid.appendChild(card);
-
-}
-
-}
-
-/* UPDATE */
-
-function updateCards(){
-
-document
-.querySelectorAll(".card")
-.forEach(card => {
-
-const id = card.dataset.id;
-
-const video =
-library.find(v => v.id === id);
-
-if(!video) return;
-
-card.querySelector("h3").innerText =
-video.title;
-
-card.querySelector("p").innerText =
-video.channel;
-
-});
-
 }
 
 /* PLAY */
@@ -821,11 +727,6 @@ document.getElementById(
 "videoTitle"
 ).innerText =
 item.title;
-
-document.getElementById(
-"videoChannel"
-).innerText =
-item.channel;
 
 const playerBox =
 document.getElementById(
