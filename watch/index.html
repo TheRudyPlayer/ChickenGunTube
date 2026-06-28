@@ -555,13 +555,18 @@ allow="autoplay">
 
 <div class="video-info">
 
-<h2 id="videoTitle">Cargando...</h2>
+<h2 id="videoTitle">
+Cargando...
+</h2>
 
-<div class="channel-box">
-    <img id="videoChannelIcon">
-    <div>
-        <h3 id="videoChannel"></h3>
-    </div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+    <img id="channelIcon"
+         src="./images/default_channel.png"
+         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+
+    <span id="videoChannel" style="color:var(--sub);font-size:14px;">
+        Canal
+    </span>
 </div>
 
 </div>
