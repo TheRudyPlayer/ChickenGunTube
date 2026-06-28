@@ -738,10 +738,27 @@ fetch(
     data.title = info.title || data.title;
     data.channel = info.author_name || data.channel;
 
-    data.channelIcon =
-    info.author_url
-    ? `https://www.google.com/s2/favicons?sz=128&domain=${new URL(info.author_url).hostname}`
-    : "./images/default_channel.png";
+    let channelUrl = info.author_url || null;
+
+if(channelUrl){
+
+try {
+const domain = new URL(channelUrl).hostname;
+
+data.channelIcon =
+`https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
+
+} catch(e){
+
+data.channelIcon = "./images/default_channel.png";
+
+}
+
+}else{
+
+data.channelIcon = "./images/default_channel.png";
+
+}
 
     updateCards();
 
