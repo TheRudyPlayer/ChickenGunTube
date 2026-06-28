@@ -695,20 +695,17 @@ library.push(data);
 fetch(
 `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`
 )
-
 .then(res => res.json())
-
 .then(info => {
 
-data.title =
-info.title || data.title;
+data.title = info.title || "Video de YouTube";
 
-data.channel =
-info.author_name || data.channel;
-
-updateCards();
+if(document.getElementById("videoTitle").textContent === "Cargando..."){
+    document.getElementById("videoTitle").textContent = data.title;
+}
 
 })
+.catch(() => {});
 
 .catch(() => {});
 
