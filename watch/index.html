@@ -792,6 +792,7 @@ const channelName = info.author_name || item.channel;
 
 titleEl.innerText = title;
 channelEl.innerText = channelName;
+document.title = `${title} - CGTube`;
 
 // buscar icono desde tu lista
 let channelIcon = item.channelIcon || null;
