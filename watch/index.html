@@ -738,6 +738,16 @@ fetch(
     data.title = info.title || data.title;
     data.channel = info.author_name || data.channel;
 
+    const channel = CGTubeChannels.find(
+    c => c.name === data.channel
+);
+
+if(channel){
+    data.channelId = channel.id;
+    data.channelHandle = channel.handle;
+    data.channelIcon = channel.icon;
+}
+
     let channelUrl = info.author_url || null;
 
 if(channelUrl){
