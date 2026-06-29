@@ -38,7 +38,9 @@ const CGTubeChannels = [
     id: "UCK8HhT4BypRtaycRMmQD8lQ",
     handle: "@paugamer67",
     name: "Pau gamer 67🐥🔫",
-    icon: "https://i.postimg.cc/0ySGC8L3/paugamericon.png"
+    icon: "https://i.postimg.cc/0ySGC8L3/paugamericon.png",
+    verified: false,
+    banner: ""
 }
 
 ];
