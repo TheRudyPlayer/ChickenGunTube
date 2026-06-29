@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CGTube</title>
+
+<link rel="icon" href="../images/chickenguntube_weblogo.png">
+
+<style>
+
+:root{
+    --bg:#0f0f0f;
+    --text:#fff;
+    --sub:#aaa;
+    --border:#303030;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,sans-serif;
+}
+
+.banner{
+    width:100%;
+    height:220px;
+    background:#222;
+}
+
+.banner img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.channel-info{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    gap:24px;
+    padding:20px;
+}
+
+.channel-icon{
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.channel-text h1{
+    margin:0;
+    font-size:34px;
+}
+
+.channel-text p{
+    color:var(--sub);
+}
+
+.tabs{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    gap:30px;
+    padding:0 20px;
+    border-bottom:1px solid var(--border);
+}
+
+.tab{
+    padding:16px 0;
+    cursor:pointer;
+}
+
+.videos{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="banner">
+    <img id="banner">
+</div>
+
+<div class="channel-info">
+
+<img
+id="icon"
+class="channel-icon">
+
+<div class="channel-text">
+
+<h1 id="name">
+Canal
+</h1>
+
+<p id="handle">
+@canal
+</p>
+
+</div>
+
+</div>
+
+<div class="tabs">
+
+<div class="tab">
+Videos
+</div>
+
+<div class="tab">
+Shorts
+</div>
+
+</div>
+
+<div
+id="videos"
+class="videos">
+
+</div>
+
+<script src="../LinkChannel.js"></script>
+<script src="../LinkVideo.js"></script>
+
+<script>
+
+// Aquí empezará el sistema
+
+</script>
+
+</body>
+</html>
