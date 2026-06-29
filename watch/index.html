@@ -562,11 +562,26 @@ Cargando...
 
 <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
     <img id="channelIcon"
-         src="./images/default_channel.png"
-         style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+     src="./images/default_channel.png"
+     style="
+     width:32px;
+     height:32px;
+     border-radius:50%;
+     object-fit:cover;
+     cursor:pointer;
+     user-select:none;
+     -webkit-user-select:none;
+     -webkit-touch-callout:none;
+     ">
 
-    <span id="videoChannel"
-style="color:var(--sub);font-size:14px;cursor:pointer;">
+    <span id="videoChannel" style="
+color:var(--sub);
+font-size:14px;
+cursor:pointer;
+user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
+">
     Canal
     </span>
 </div>
@@ -812,7 +827,7 @@ if(!channelIcon && typeof CGTubeChannels !== "undefined"){
 }
 
 // aplicar icono final
-iconEl.src = channelIcon || "./images/default_channel.png";
+iconEl.src = channelIcon || "https://i.postimg.cc/1XkYCRr5/56-sin-titulo-20260628220556.png";
 
 item.title = title;
 item.channel = channelName;
@@ -833,6 +848,14 @@ if(item?.type === "short"){
 }
 
     channelEl.onclick = () => {
+
+    if(item.channelId){
+        location.href = `/ChickenGunTube/channel/?id=${item.channelId}`;
+    }
+
+};
+
+    iconEl.onclick = () => {
 
     if(item.channelId){
         location.href = `/ChickenGunTube/channel/?id=${item.channelId}`;
