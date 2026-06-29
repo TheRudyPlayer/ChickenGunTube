@@ -2,12 +2,14 @@ const CGTubeChannels = [
 
 {
     id: "UC34MyNlsyxD4DV_rtzTXsGg",
-    handle: "@elrudyplayeroficial"
+    handle: "@elrudyplayeroficial",
+    name: "TheRudyPlayer"
 },
 
 {
     id: "UC5aLmBd_aN34pcpjTxjvEPw",
-    handle: "@JrCrackOficial"
+    handle: "@JrCrackOficial",
+    name: "J.R Crack"
 },
 
 {
