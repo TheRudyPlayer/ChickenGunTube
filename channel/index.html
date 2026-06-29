@@ -144,6 +144,28 @@ body{
     padding:20px;
 }
 
+.settings{
+    position:fixed;
+    left:72px;
+    top:60px;
+    width:240px;
+    background:var(--bg);
+    border:1px solid var(--border);
+    padding:14px;
+    display:none;
+    z-index:200;
+}
+
+.settings button{
+    width:100%;
+    height:42px;
+    border:none;
+    background:#181818;
+    color:var(--text);
+    border-radius:10px;
+    cursor:pointer;
+    }
+
 </style>
 
 </head>
@@ -151,6 +173,14 @@ body{
 <body>
 
 <div class="sidebar">
+
+<div class="settings" id="settings">
+
+<button onclick="toggleTheme()">
+Cambiar tema
+</button>
+
+</div>
 
 <div class="sidebar-logo" onclick="history.back()">
     <img src="../images/chickenguntube_weblogo.png">
@@ -178,6 +208,20 @@ onclick="history.back()">
 <span>Volver</span>
 
 </button>
+
+<button class="nav-btn" onclick="toggleSettings()">
+
+<svg viewBox="0 0 24 24">
+<circle cx="12" cy="12" r="3"></circle>
+<path d="M12 2V5"></path>
+<path d="M12 19V22"></path>
+<path d="M2 12H5"></path>
+<path d="M19 12H22"></path>
+</svg>
+
+<span>Ajustes</span>
+
+    </button>
 
 </div>
 
@@ -230,7 +274,37 @@ class="videos">
 
 <script>
 
-// Aquí empezará el sistema
+const savedTheme = localStorage.getItem("CGTubeTheme");
+
+if(savedTheme === "light"){
+    document.body.classList.add("light");
+}
+
+function toggleSettings(){
+
+const settings = document.getElementById("settings");
+
+settings.style.display =
+settings.style.display === "block"
+? "none"
+: "block";
+
+}
+
+function toggleTheme(){
+
+document.body.classList.toggle("light");
+
+localStorage.setItem(
+"CGTubeTheme",
+document.body.classList.contains("light")
+? "light"
+: "dark"
+);
+
+}
+
+    // aqui empieza el sistema
 
 </script>
 
