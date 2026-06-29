@@ -767,11 +767,17 @@ const channelEl = document.getElementById("videoChannel");
 const iconEl = document.getElementById("channelIcon");
 
 player.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+
 titleEl.innerText = "Cargando...";
 channelEl.innerText = "Cargando...";
-iconEl.src = "https://i.postimg.cc/9QRfXYmq/channels4-profile-(10).jpg";
+iconEl.src = "./images/default_channel.png";
 
-let channelId = null;
+let item = library.find(v => v.id === id);
+
+if(!item){
+    console.log("Video no encontrado en library");
+    return;
+}
 
 try {
 
@@ -781,65 +787,47 @@ const res = await fetch(
 
 const info = await res.json();
 
-const title = info.title;
-const channelName = info.author_name;
+const title = info.title || item.title;
+const channelName = info.author_name || item.channel;
 
-if(title) titleEl.innerText = title;
-if(channelName) channelEl.innerText = channelName;
+titleEl.innerText = title;
+channelEl.innerText = channelName;
 
-const xmlRes = await fetch(
-`https://www.youtube.com/feeds/videos.xml?video_id=${id}`
-);
+// buscar icono desde tu lista
+let channelIcon = item.channelIcon || null;
 
-const xml = await xmlRes.text();
+if(!channelIcon && typeof CGTubeChannels !== "undefined"){
+    const channel = CGTubeChannels.find(c =>
+        channelName.toLowerCase().includes(c.name.toLowerCase())
+    );
 
-const match = xml.match(/<yt:channelId>(.*?)<\/yt:channelId>/);
-
-if(match && match[1]){
-channelId = match[1];
-}
-
-let item = library.find(v => v.id === id);
-
-    if(!item){
-    alert("ITEM NO ENCONTRADO");
-    return;
-}
-
-if(!item.channelIcon){
-
-    while(!item.channelIcon){
-        await new Promise(r => setTimeout(r,100));
+    if(channel){
+        channelIcon = channel.icon;
     }
-
 }
 
-titleEl.innerText = item.title;
-channelEl.innerText = item.channel + " | " + (item.channelIcon || "SIN ICONO");
-alert(item.channelIcon);
-iconEl.src = item.channelIcon;
+// aplicar icono final
+iconEl.src = channelIcon || "./images/default_channel.png";
+
+item.title = title;
+item.channel = channelName;
+item.channelIcon = channelIcon;
 
 } catch (e) {
-
-if(channelEl.innerText === "Cargando..."){
-channelEl.innerText = "Canal desconocido";
+    channelEl.innerText = item.channel || "Canal desconocido";
 }
 
-}
-
-const item = library.find(v => v.id === id);
 const playerBox = document.getElementById("playerBox");
 
 if(item?.type === "short"){
-playerBox.classList.add("short");
+    playerBox.classList.add("short");
 }else{
-playerBox.classList.remove("short");
+    playerBox.classList.remove("short");
 }
 
 loadRecommended(id);
-
 history.replaceState({}, "", `?v=${id}`);
-    }
+}
 
 /* CLOSE */
 
