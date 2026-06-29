@@ -19,6 +19,18 @@ const CGTubeChannels = [
     handle: "@Den19K",
     name: "DEN19K",
     icon: "https://i.postimg.cc/hGd5w607/channels4-profile-(6).jpg"
+},
+{
+    id: "UC-unh3YIkpHzRCeiZ6RRZ9A",
+    handle: "@MirtHDD",
+    name: "MirtHD",
+    icon: "https://i.postimg.cc/hPvhnps0/mirticon.png"
+},
+{
+    id: "UCK8HhT4BypRtaycRMmQD8lQ",
+    handle: "@paugamer67",
+    name: "Pau gamer 67🐥🔫",
+    icon: "https://i.postimg.cc/0ySGC8L3/paugamericon.png"
 }
 
 ];
