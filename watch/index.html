@@ -801,6 +801,11 @@ channelId = match[1];
 
 let item = library.find(v => v.id === id);
 
+    if(!item){
+    alert("ITEM NO ENCONTRADO");
+    return;
+}
+
 if(!item.channelIcon){
 
     while(!item.channelIcon){
