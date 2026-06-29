@@ -565,8 +565,9 @@ Cargando...
          src="./images/default_channel.png"
          style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
 
-    <span id="videoChannel" style="color:var(--sub);font-size:14px;">
-        Canal
+    <span id="videoChannel"
+style="color:var(--sub);font-size:14px;cursor:pointer;">
+    Canal
     </span>
 </div>
 
@@ -830,6 +831,14 @@ if(item?.type === "short"){
 }else{
     playerBox.classList.remove("short");
 }
+
+    channelEl.onclick = () => {
+
+    if(item.channelId){
+        location.href = `/ChickenGunTube/channel/?id=${item.channelId}`;
+    }
+
+};
 
 loadRecommended(id);
 history.replaceState({}, "", `?v=${id}`);
