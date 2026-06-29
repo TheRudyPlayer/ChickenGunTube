@@ -1,10 +1,10 @@
 const CGTubeChannels = [
 
 {
-    id: "UC34MyNlsyxD4DV_rtzTXsGg",
-    handle: "@elrudyplayeroficial",
-    name: "TheRudyPlayer",
-    icon: "https://yt3.googleusercontent.com/27vaT2VdaJDa3QVxsdh9IH8O0A0aKrWp9VqGXdNbX6kQvrI7fb5t6AsPBET0G10RTJZkLSL_OB8=s160-c-k-c0x00ffffff-no-rj"
+    id: "UCO4wdYUIuBRxZ4MRo_4C4aQ",
+    handle: "@DragonDudeOfficial",
+    name: "Dragon Dude",
+    icon: "https://i.postimg.cc/TwhcyHtC/channels4-profile-(7).jpg"
 },
 
 {
@@ -15,8 +15,10 @@ const CGTubeChannels = [
 },
 
 {
-    id: "UCyyyyyyyyyyyyyyyyyyyyyy",
-    handle: "@Canal3"
+    id: "UCx6ygSDNHqot_lMsDEpD-fw",
+    handle: "@Den19K",
+    name: "DEN19K",
+    icon: "https://i.postimg.cc/hGd5w607/channels4-profile-(6).jpg"
 }
 
 ];
