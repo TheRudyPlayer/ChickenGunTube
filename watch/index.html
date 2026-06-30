@@ -805,24 +805,26 @@ document.title = `${title} - CGTube`;
 // buscar icono desde tu lista
 let channelIcon = item.channelIcon || null;
 
-const channelList = window.CGTubeChannels || [];
+const channelList = window.CGTubeChannels;
 
-if (!channelIcon && channelName) {
+if (!channelIcon && Array.isArray(channelList) && channelName) {
 
     const videoName = channelName.toLowerCase().trim();
 
     const channel = channelList.find(c => {
-
         if (!c?.name) return false;
 
         const dbName = c.name.toLowerCase().trim();
 
-        return videoName.includes(dbName) || dbName.includes(videoName);
+        return (
+            videoName.includes(dbName) ||
+            dbName.includes(videoName)
+        );
     });
 
     if (channel) {
         channelIcon = channel.icon;
-        item.channelId = channel.id; // opcional pero útil
+        item.channelId = channel.id;
         item.channelHandle = channel.handle;
     }
 }
