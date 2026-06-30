@@ -316,6 +316,67 @@ document.body.classList.contains("light")
 }
 
     // aqui empieza el sistema
+const channelId=new URLSearchParams(location.search).get("id");
+
+const channel=CGTubeChannels.find(c=>c.id===channelId);
+
+if(!channel){
+document.getElementById("videos").innerHTML="<h2>Canal no encontrado</h2>";
+throw "";
+}
+
+document.title=channel.name+" - CGTube";
+name.textContent=channel.name;
+handle.textContent=channel.handle;
+icon.src=channel.icon;
+banner.src=channel.banner||"";
+
+const container=document.getElementById("videos");
+
+const getVideoId=url=>{
+if(url.includes("youtu.be/")) return url.split("youtu.be/")[1].split("?")[0];
+if(url.includes("watch?v=")) return url.split("watch?v=")[1].split("&")[0];
+if(url.includes("/shorts/")) return url.split("/shorts/")[1].split("?")[0];
+return "";
+};
+
+CGTubeLinks
+.filter(v=>v.channelId===channelId)
+.forEach(async video=>{
+
+const id=getVideoId(video.url);
+
+const res=await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+const info=await res.json();
+
+container.innerHTML+=`
+<div onclick="location.href='../watch/?v=${id}'"
+style="
+cursor:pointer;
+display:inline-block;
+width:320px;
+margin:10px;
+vertical-align:top;
+">
+
+<img
+src="https://img.youtube.com/vi/${id}/hqdefault.jpg"
+style="
+width:100%;
+border-radius:12px;
+">
+
+<h3>${info.title||"Video"}</h3>
+
+<p style="color:var(--sub)">
+${info.author_name||""}
+</p>
+
+</div>
+`;
+
+});
+    
     const channelId = new URLSearchParams(location.search).get("id");
 
 const channel = CGTubeChannels.find(c => c.id === channelId);
