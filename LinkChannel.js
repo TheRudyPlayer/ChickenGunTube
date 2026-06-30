@@ -1,4 +1,4 @@
-const CGTubeChannels = [
+window.CGTubeChannels = [
 
 {
     id: "UCO4wdYUIuBRxZ4MRo_4C4aQ",
