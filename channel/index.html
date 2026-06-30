@@ -376,30 +376,6 @@ ${info.author_name||""}
 `;
 
 });
-    
-    const channelId = new URLSearchParams(location.search).get("id");
-
-const channel = CGTubeChannels.find(c => c.id === channelId);
-
-if(!channel){
-    document.getElementById("videos").innerHTML = "Canal no encontrado";
-}else{
-
-document.title = channel.name + " - CGTube";
-
-name.textContent = channel.name;
-handle.textContent = channel.handle;
-icon.src = channel.icon;
-banner.src = channel.banner || "";
-
-const videos = CGTubeLinks.filter(v => v.channelId === channelId);
-
-videos.innerHTML = "";
-
-document.getElementById("videos").innerHTML =
-"Videos encontrados: " + videos.length;
-
-}
 
 </script>
 
