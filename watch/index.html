@@ -807,11 +807,14 @@ let channelIcon = item.channelIcon || null;
 
 const channelList = window.CGTubeChannels || [];
 
-if (!channelIcon) {
-    const channel = channelList.find(c => {
-        if (!channelName || !c.name) return false;
+if (!channelIcon && channelName) {
 
-        const videoName = channelName.toLowerCase().trim();
+    const videoName = channelName.toLowerCase().trim();
+
+    const channel = channelList.find(c => {
+
+        if (!c?.name) return false;
+
         const dbName = c.name.toLowerCase().trim();
 
         return videoName.includes(dbName) || dbName.includes(videoName);
@@ -819,6 +822,8 @@ if (!channelIcon) {
 
     if (channel) {
         channelIcon = channel.icon;
+        item.channelId = channel.id; // opcional pero útil
+        item.channelHandle = channel.handle;
     }
 }
 
