@@ -1025,9 +1025,9 @@ text.includes(value)
 
 async function start(){
 
-for(const item of rawItems){
+for (const item of rawItems){
 
-await createVideo(item);
+    await createVideo(item.url);
 
 }
 
