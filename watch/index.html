@@ -719,20 +719,24 @@ if(type === "short"){
 
 const raw = rawItems.find(v => getVideoId(v.url) === id);
 
+const ch = window.CGTubeChannels.find(c => c.id === raw?.channelId);
+
 const data = {
     id,
     type,
     shortFormat,
     title: raw?.title || "",
     channelId: raw?.channelId || "",
+    channel: ch?.name || "",
+    channelIcon: ch?.icon || "",
     thumb: `https://img.youtube.com/vi/${id}/hqdefault.jpg`
 };
 
 library.push(data);
 
-if (data.title) {
+if (data.title && data.channelId) {
     return;
-    }
+}
 
 try {
 
@@ -893,7 +897,12 @@ if(channelIcon){
 }
 
 } catch (e) {
+    if (item.channelId) {
+    const ch = window.CGTubeChannels.find(c => c.id === item.channelId);
+    channelEl.innerText = ch?.name || "Canal desconocido";
+} else {
     channelEl.innerText = item.channel || "Canal desconocido";
+    }
 }
 
 const playerBox = document.getElementById("playerBox");
@@ -976,7 +985,7 @@ background-image:url('${video.thumb}')
 
 <h4>${video.title}</h4>
 
-<p>${video.channel}</p>
+<p>${video.channel || ""}</p>
 
 </div>
 
