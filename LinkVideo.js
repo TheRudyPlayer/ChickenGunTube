@@ -4,7 +4,7 @@ window.CGTubeLinks = [
     url: "https://youtu.be/_hdKjo5NR40",
     title: "Cosas que YO odio de Chicken gun",
     channel: "ThreeGames",
-    channelId: ""
+    channelId: "UCfbZzAbUVz3JsYPSOSx6jTA"
 },
 
 {
