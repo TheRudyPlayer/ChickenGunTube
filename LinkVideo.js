@@ -677,6 +677,6 @@ window.CGTubeLinks = [
     title: "",
     channel: "",
     channelId: ""
-},
+}
 
 ];
