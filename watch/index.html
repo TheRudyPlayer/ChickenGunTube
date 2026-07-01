@@ -799,14 +799,21 @@ if(!item){
     return;
 }
 
-if (item.title && item.channel) {
+if (item.title) {
 
     titleEl.innerText = item.title;
-    channelEl.innerText = item.channel;
     document.title = `${item.title} - CGTube`;
 
-    if (item.channelIcon) {
-        iconEl.src = item.channelIcon;
+    if (item.channelId) {
+
+        const ch = window.CGTubeChannels.find(c => c.id === item.channelId);
+
+        if (ch) {
+            channelEl.innerText = ch.name;
+            iconEl.src = ch.icon;
+            item.channelIcon = ch.icon;
+        }
+
     }
 
     loadRecommended(id);
